@@ -1,0 +1,37 @@
+services:
+  im-guard-api:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ..:/app
+    env_file:
+      - audit_service.env.example
+    command: >
+      sh -c "pip install -e '.[serve]' &&
+             im-guard --config ${IM_GUARD_CONFIG:-configs/default.yaml}
+             serve --host ${IM_GUARD_HOST:-0.0.0.0}
+             --port ${IM_GUARD_PORT:-8000}
+             --model-path ${IM_GUARD_MODEL_PATH:-outputs/im-audit-judge}"
+    ports:
+      - "8000:8000"
+
+  vllm-judge:
+    image: vllm/vllm-openai:latest
+    ipc: host
+    volumes:
+      - ..:/app
+    working_dir: /app
+    environment:
+      MODEL_PATH: /app/outputs/im-audit-judge
+      SERVED_MODEL_NAME: im-audit-judge
+      TP_SIZE: "4"
+      MAX_MODEL_LEN: "8192"
+    command: bash /app/deploy/vllm_serve.sh
+    ports:
+      - "8001:8001"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]
+

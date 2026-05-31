@@ -1,0 +1,75 @@
+model_card:
+  name: im-audit-judge-qwen35-27b-sft
+  base_model: Qwen3.5-27B
+  task: IM private-chat multi-evidence risk audit
+  output_fields:
+    - risk_level
+    - topic
+    - correlation_analysis
+    - final_judgment
+    - judgment_basis
+    - handling_suggestion
+
+datasets:
+  train_total: 51442
+  history_tickets: 24498
+  synthetic_cases: 11615
+  refinement_hard_cases: 2629
+  public_binary: 12700
+  internal_test: 1024
+  p0_p1_replay: 312
+
+training:
+  epochs: 2
+  learning_rate: 0.000002
+  batch_size: 64
+  max_seq_length: 8192
+  warmup_ratio: 0.03
+  loss: completion_only
+  hardware: 8xA100-80GB
+
+main_results:
+  internal_test:
+    final_judgment_acc: 82.1
+    risk_macro_f1: 75.6
+    handling_macro_f1: 73.2
+    ban_account_fpr: 2.6
+  p0_p1_replay:
+    final_judgment_acc: 87.5
+    risk_macro_f1: 77.3
+    handling_macro_f1: 75.1
+  public_benchmark_avg_f1_gain: 2.8
+
+ablation:
+  full:
+    final_judgment_acc: 82.1
+    risk_macro_f1: 75.6
+    handling_macro_f1: 73.2
+  no_refinement:
+    final_judgment_acc: 78.4
+    risk_macro_f1: 70.2
+    handling_macro_f1: 69.1
+  no_behavior_evidence:
+    final_judgment_acc: 76.5
+    risk_macro_f1: 67.8
+    handling_macro_f1: 66.4
+  no_public_data:
+    final_judgment_acc: 80.6
+    risk_macro_f1: 74.1
+    handling_macro_f1: 71.9
+  qwen35_35b_a3b:
+    final_judgment_acc: 80.7
+    risk_macro_f1: 73.9
+    handling_macro_f1: 71.5
+  qwen3_8b:
+    final_judgment_acc: 75.8
+    risk_macro_f1: 67.2
+    handling_macro_f1: 65.0
+
+serving:
+  engine: vLLM
+  max_new_tokens: 384
+  decoding: greedy
+  p95_latency_seconds: 1.2
+  route_guardrail: ban_account_requires_human_review
+
