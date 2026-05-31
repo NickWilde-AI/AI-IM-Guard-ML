@@ -1,70 +1,58 @@
+<div align="center">
+
 # AI-IM-Guard-ML
 
-面向 IM 私聊风控审核场景的企业级 AI/ML 多证据风险审核框架。
+**面向 IM 私聊风控审核场景的企业级 AI/ML 多证据风险审核框架**
 
-AI-IM-Guard-ML 是一个面向生产环境设计的内容风险审核工程，适用于直播、社交、创作者平台、私信安全、风控审核等场景。项目将聊天语义证据、结构化行为异常、LLM Judge、策略路由、监控告警、版本追踪和审计日志组合成一套完整的机器学习工程链路。
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/API-FastAPI-009688)](https://fastapi.tiangolo.com/)
+[![vLLM](https://img.shields.io/badge/Serving-vLLM-7c3aed)](https://github.com/vllm-project/vllm)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-它解决的问题不是简单的 safe/unsafe 二分类，而是让系统能够输出可解释、可路由、可监控、可回流的结构化审核结论。
+AI-IM-Guard-ML 将聊天语义证据、结构化行为异常、LLM Judge、策略路由、监控告警、版本追踪和审计日志组合成一套完整的机器学习工程链路。
 
-## 核心特性
+</div>
 
-- **多证据融合审核**：同时使用 `audit_scene`、`chat_evidence_list`、`behavior_abnormal_list`。
-- **结构化 LLM Judge 输出**：输出风险等级、违规判定、处置建议、关联分析和判定依据。
-- **生产级后处理**：校验模型输出、修正字段冲突，并将高影响处置路由到复核链路。
-- **SFT 训练入口**：支持 prompt 渲染、completion-only SFT、LoRA 配置和公开二分类数据保守归一。
-- **评测与数据质量**：支持分类指标、macro-F1、FPR、AUPRC、标注一致性、数据审计和泄漏检查。
-- **LLMOps 能力**：提供 API 服务、Prometheus 风格指标、监控报告、告警规则、版本追踪和审计日志。
-- **部署模板**：提供 FastAPI 服务、vLLM 启动脚本、环境变量示例和 Docker Compose 示例。
+---
 
-## 系统链路
+## 项目定位
 
-```text
-IM 审核请求
-  -> 行为特征聚合
-  -> Prompt 渲染
-  -> LLM / 启发式 Judge
-  -> JSON 解析
-  -> 生产后处理
-  -> 策略路由
-  -> 审计日志
-  -> 监控告警与样本回流
-```
+传统内容安全系统通常只做 `safe / unsafe` 二分类，但在直播、社交、创作者平台和私信安全场景中，业务往往需要更细粒度的判断：
 
-## 目录结构
+- 风险到底有多严重？
+- 是不是已经构成违规？
+- 应该忽略、警告、限号，还是进入封禁复核？
+- 聊天语义和行为异常之间是否能相互印证？
+- 线上如何监控、告警、回滚和样本回流？
 
-```text
-.
-├── configs/
-│   ├── default.yaml                 # 模型、训练、标签、版本、告警阈值
-│   ├── rubrics.yaml                 # 风险主题和分级规则
-│   └── experiment_results.yaml      # 模型卡风格的实验元数据
-├── data/samples/
-│   └── sample_cases.jsonl           # 示例审核样本
-├── deploy/
-│   ├── audit_service.env.example    # 服务环境变量示例
-│   ├── docker-compose.example.yml   # API + vLLM 部署示例
-│   └── vllm_serve.sh                # vLLM 服务启动脚本
-├── docs/
-│   ├── ARCHITECTURE.md              # 企业级架构说明
-│   └── COMMANDS.md                  # 常用命令手册
-├── src/im_guard_ml/
-│   ├── schema.py                    # 标签、枚举、字段一致性校验
-│   ├── prompting.py                 # Prompt 模板
-│   ├── training.py                  # SFT / LoRA 训练入口
-│   ├── inference.py                 # 启发式 Judge 与 Transformers Judge
-│   ├── parsing.py                   # JSON 提取和兜底解析
-│   ├── postprocess.py               # 生产保护和策略路由
-│   ├── evaluation.py                # 离线评测指标
-│   ├── refinement.py                # hard sample 回灌
-│   ├── data_audit.py                # 数据质量和泄漏审计
-│   ├── monitoring.py                # 监控摘要
-│   ├── alerting.py                  # 告警判断
-│   ├── versioning.py                # 版本追踪和审计日志
-│   ├── api.py                       # FastAPI 服务
-│   └── cli.py                       # 命令行入口
-├── Makefile
-├── pyproject.toml
-└── README.md
+AI-IM-Guard-ML 提供的是一套 **可解释、可路由、可监控、可回流** 的 AI 风控审核工程框架，而不是一个简单分类器。
+
+## 核心能力
+
+| 能力 | 说明 |
+| --- | --- |
+| 多证据融合 | 同时接收审核场景、聊天证据、行为异常证据 |
+| LLM Judge | 支持启发式 demo Judge，也支持 Transformers / SFT checkpoint |
+| 结构化输出 | 输出风险等级、违规判定、处置建议、关联分析和判定依据 |
+| 生产后处理 | JSON 兜底解析、字段校验、冲突修正、策略路由 |
+| 数据闭环 | 支持多源数据构造、hard sample refinement、数据质量审计 |
+| 评测体系 | 支持 Accuracy、F1、macro-F1、FPR、AUPRC、标注一致性指标 |
+| LLMOps | 支持 API 服务、Prometheus 指标、监控摘要、告警规则、版本追踪 |
+| 部署模板 | 提供 FastAPI、vLLM、Docker Compose 和环境变量示例 |
+
+## 系统架构
+
+```mermaid
+flowchart LR
+  A["IM 审核请求"] --> B["行为特征聚合"]
+  B --> C["Prompt 渲染"]
+  C --> D["LLM / Heuristic Judge"]
+  D --> E["JSON 解析"]
+  E --> F["生产后处理"]
+  F --> G["策略路由"]
+  G --> H["审计日志"]
+  H --> I["监控告警"]
+  I --> J["样本回流"]
 ```
 
 ## 快速开始
@@ -80,7 +68,7 @@ source .venv/bin/activate
 pip install -e .
 ```
 
-运行示例流程：
+运行完整示例流程：
 
 ```bash
 make summary
@@ -91,7 +79,7 @@ make alerts
 make audit-data
 ```
 
-等价命令：
+你也可以直接使用 CLI：
 
 ```bash
 PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml summary data/samples/sample_cases.jsonl
@@ -109,24 +97,19 @@ PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml audit-da
 
 ## API 服务
 
-安装服务依赖：
-
 ```bash
 pip install -e ".[serve]"
-```
-
-启动服务：
-
-```bash
 im-guard --config configs/default.yaml serve --port 8000
 ```
 
 接口：
 
-- `GET /health`
-- `GET /config`
-- `POST /judge`
-- `GET /metrics`
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| `GET` | `/health` | 健康检查 |
+| `GET` | `/config` | 当前配置摘要 |
+| `POST` | `/judge` | 提交审核样本并返回结构化结论 |
+| `GET` | `/metrics` | Prometheus 文本格式指标 |
 
 示例：
 
@@ -135,7 +118,22 @@ curl http://127.0.0.1:8000/health
 curl http://127.0.0.1:8000/metrics
 ```
 
-## 训练
+## 核心输出结构
+
+```json
+{
+  "risk_level": "low_risk | mid_risk | high_risk",
+  "topic": "business risk topic",
+  "correlation_analysis": "semantic-behavior evidence correlation",
+  "final_judgment": "exist_violation | not_exist_violation",
+  "judgment_basis": "decision basis with evidence references",
+  "handling_suggestion": "ignore | warning | limit_account | ban_account",
+  "route": "auto_close | auto_action | policy_action | human_review_required",
+  "final_action": "ignore | send_warning | limit_account_candidate | review_before_ban"
+}
+```
+
+## 训练与微调
 
 安装训练依赖：
 
@@ -163,9 +161,21 @@ im-guard --config configs/default.yaml train data/train/im_audit_train.jsonl
 训练入口支持：
 
 - completion-only SFT
-- LoRA 配置
-- 公开二分类样本保守归一
+- LoRA / PEFT 配置
+- 公开二分类样本保守归一，避免污染重处置标签
 - Qwen 风格 chat prompt 渲染
+
+LoRA 可在 `configs/default.yaml` 中开启：
+
+```yaml
+training:
+  peft:
+    enabled: true
+    method: lora
+    r: 16
+    lora_alpha: 32
+    lora_dropout: 0.05
+```
 
 ## vLLM 部署
 
@@ -178,20 +188,38 @@ MAX_MODEL_LEN=8192 \
 bash deploy/vllm_serve.sh
 ```
 
-## 核心输出结构
+## 项目结构
 
-```json
-{
-  "risk_level": "low_risk | mid_risk | high_risk",
-  "topic": "business risk topic",
-  "correlation_analysis": "semantic-behavior evidence correlation",
-  "final_judgment": "exist_violation | not_exist_violation",
-  "judgment_basis": "decision basis with evidence references",
-  "handling_suggestion": "ignore | warning | limit_account | ban_account",
-  "route": "auto_close | auto_action | policy_action | human_review_required",
-  "final_action": "ignore | send_warning | limit_account_candidate | review_before_ban"
-}
+```text
+.
+├── configs/                 # 模型、训练、rubric、告警阈值配置
+├── data/samples/            # 示例审核样本
+├── deploy/                  # vLLM、Docker Compose、环境变量模板
+├── docs/                    # 架构说明与命令手册
+├── scripts/                 # 演示脚本
+├── src/im_guard_ml/         # 核心 Python 包
+├── Makefile
+├── pyproject.toml
+└── README.md
 ```
+
+核心模块：
+
+| 模块 | 说明 |
+| --- | --- |
+| `schema.py` | 标签、枚举、字段一致性校验 |
+| `prompting.py` | Prompt 模板和渲染 |
+| `training.py` | SFT / LoRA 训练入口 |
+| `inference.py` | 启发式 Judge 与 Transformers Judge |
+| `parsing.py` | JSON 提取和兜底解析 |
+| `postprocess.py` | 生产保护和策略路由 |
+| `evaluation.py` | 离线评测指标 |
+| `data_audit.py` | 数据质量和泄漏审计 |
+| `monitoring.py` | 监控摘要 |
+| `alerting.py` | 告警判断 |
+| `versioning.py` | 版本追踪和审计日志 |
+| `api.py` | FastAPI 服务 |
+| `cli.py` | 命令行入口 |
 
 ## 生产保护机制
 
@@ -209,6 +237,14 @@ bash deploy/vllm_serve.sh
 - [架构说明](docs/ARCHITECTURE.md)
 - [命令手册](docs/COMMANDS.md)
 - [部署模板](deploy/)
+
+## 适用场景
+
+- 私信/IM 内容安全审核
+- 直播和社交平台风控
+- 创作者平台交易和引流治理
+- 企业内部 AI 风险审核系统
+- LLM Judge 工程化落地
 
 ## License
 
