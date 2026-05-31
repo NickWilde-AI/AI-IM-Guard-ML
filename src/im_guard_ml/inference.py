@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import logging
+import os
 from dataclasses import dataclass
 from typing import Any
 
 from .parsing import parse_judge_output
-from .prompting import render_infer_text
+from .prompting import render_infer_text, render_user_prompt
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -93,4 +97,69 @@ class TransformersJudge:
             )
         gen = self.tokenizer.decode(output[0, inputs["input_ids"].shape[1] :], skip_special_tokens=True)
         return parse_judge_output(gen)
+
+
+class APIJudge:
+    """Judge that calls an OpenAI-compatible API (e.g. DashScope Qwen) for inference.
+
+    This allows running the full pipeline on a Mac without GPU by using a remote
+    model API. Supports any OpenAI-compatible endpoint.
+
+    Usage:
+        judge = APIJudge(rubrics, model="qwen-plus")
+        result = judge.predict(case)
+    """
+
+    def __init__(
+        self,
+        rubrics: dict[str, str],
+        model: str = "qwen-plus",
+        api_base: str | None = None,
+        api_key: str | None = None,
+        max_tokens: int = 384,
+        temperature: float = 0.0,
+    ):
+        self.rubrics = rubrics
+        self.model = model
+        self.api_base = api_base or os.environ.get(
+            "QWEN_API_BASE", "https://dashscope.aliyuncs.com/compatible-mode/v1"
+        )
+        self.api_key = api_key or os.environ.get("QWEN_API_KEY", "")
+        self.max_tokens = max_tokens
+        self.temperature = temperature
+
+    def predict(self, case: dict[str, Any]) -> dict[str, Any]:
+        import httpx
+
+        user_prompt = render_user_prompt(case, self.rubrics)
+        payload = {
+            "model": self.model,
+            "messages": [{"role": "user", "content": user_prompt}],
+            "max_tokens": self.max_tokens,
+            "temperature": self.temperature,
+        }
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        try:
+            resp = httpx.post(
+                f"{self.api_base}/chat/completions",
+                json=payload,
+                headers=headers,
+                timeout=60.0,
+            )
+            resp.raise_for_status()
+            content = resp.json()["choices"][0]["message"]["content"]
+            return parse_judge_output(content)
+        except Exception as e:
+            logger.error("API Judge failed: %s", e)
+            return {
+                "risk_level": "low_risk",
+                "topic": "无主题",
+                "correlation_analysis": f"API 调用失败: {e}",
+                "final_judgment": "not_exist_violation",
+                "judgment_basis": "API 异常，默认安全。",
+                "handling_suggestion": "ignore",
+            }
 

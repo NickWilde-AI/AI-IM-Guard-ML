@@ -22,6 +22,8 @@ def main(argv: list[str] | None = None) -> int:
     p_predict.add_argument("jsonl")
     p_predict.add_argument("--out")
     p_predict.add_argument("--model-path")
+    p_predict.add_argument("--api", action="store_true", help="Use API-based judge (requires QWEN_API_KEY env)")
+    p_predict.add_argument("--api-model", default="qwen-plus", help="API model name (default: qwen-plus)")
     p_predict.add_argument("--with-route", action="store_true")
     p_predict.add_argument("--with-version", action="store_true")
     p_predict.add_argument("--audit-log-out")
@@ -59,7 +61,13 @@ def main(argv: list[str] | None = None) -> int:
         from .versioning import build_audit_log, version_info_from_config
 
         rows = read_jsonl(args.jsonl)
-        judge = TransformersJudge(args.model_path, cfg.get("rubrics", {})) if args.model_path else HeuristicJudge(cfg.get("rubrics", {}))
+        if args.api:
+            from .inference import APIJudge
+            judge = APIJudge(cfg.get("rubrics", {}), model=args.api_model)
+        elif args.model_path:
+            judge = TransformersJudge(args.model_path, cfg.get("rubrics", {}))
+        else:
+            judge = HeuristicJudge(cfg.get("rubrics", {}))
         versions = version_info_from_config(cfg, args.model_path)
         preds = []
         audit_logs = []

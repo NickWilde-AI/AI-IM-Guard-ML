@@ -33,8 +33,8 @@ def create_app(config_path: str = "configs/default.yaml", model_path: str | None
             counters["parse_non_ok_total"] += 1
         return {**versions.to_dict(), **pred, "route": route, "final_action": final_action}
 
-    @app.get("/metrics")
-    def metrics() -> Response:
+    @app.get("/metrics", response_class=Response)
+    def metrics():
         body = "\n".join(
             [
                 "# HELP im_guard_requests_total Total audit requests.",

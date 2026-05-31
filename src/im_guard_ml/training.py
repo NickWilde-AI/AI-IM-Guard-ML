@@ -1,8 +1,18 @@
 from __future__ import annotations
 
+import json
+import re
 from typing import Any
 
 from .prompting import RESPONSE_PREFIX, render_train_text
+
+# JSON field names that public_binary samples should NOT contribute loss to.
+_MASKED_FIELDS_FOR_PUBLIC = {"risk_level", "handling_suggestion"}
+
+# Regex to locate JSON field spans: captures "field_name": "field_value"
+_FIELD_PATTERN = re.compile(
+    r'"(risk_level|handling_suggestion)"\s*:\s*"[^"]*"'
+)
 
 
 def run_sft(config: dict[str, Any], dataset_name_or_path: str, rubrics: dict[str, str]) -> None:
@@ -20,8 +30,9 @@ def run_sft(config: dict[str, Any], dataset_name_or_path: str, rubrics: dict[str
         raw = load_dataset("json", data_files=dataset_name_or_path, split="train")
     else:
         raw = load_dataset(dataset_name_or_path, split="train")
-    if train_cfg.get("enable_field_loss_mask", True):
-        raw = raw.map(_normalize_public_binary_labels)
+
+    # Normalize public labels conservatively as a safety net (belt & suspenders)
+    raw = raw.map(_normalize_public_binary_labels)
 
     def formatting_fn(batch: dict[str, list[Any]]) -> list[str]:
         texts: list[str] = []
@@ -30,7 +41,16 @@ def run_sft(config: dict[str, Any], dataset_name_or_path: str, rubrics: dict[str
             texts.append(render_train_text(case, rubrics))
         return texts
 
-    collator = DataCollatorForCompletionOnlyLM(RESPONSE_PREFIX, tokenizer=tokenizer)
+    enable_field_mask = train_cfg.get("enable_field_loss_mask", True)
+    if enable_field_mask:
+        collator = FieldLevelMaskCollator(
+            response_template=RESPONSE_PREFIX,
+            tokenizer=tokenizer,
+            formatting_func=formatting_fn,
+        )
+    else:
+        collator = DataCollatorForCompletionOnlyLM(RESPONSE_PREFIX, tokenizer=tokenizer)
+
     args = SFTConfig(
         output_dir=train_cfg["output_dir"],
         num_train_epochs=train_cfg["num_train_epochs"],
@@ -57,13 +77,123 @@ def run_sft(config: dict[str, Any], dataset_name_or_path: str, rubrics: dict[str
     trainer.save_model(train_cfg["output_dir"])
 
 
-def _normalize_public_binary_labels(case: dict[str, Any]) -> dict[str, Any]:
-    """Keep public binary samples conservative so they do not teach heavy handling labels.
+class FieldLevelMaskCollator:
+    """Custom collator that masks loss on specific JSON fields for public_binary samples.
 
-    TRL's stock collator masks by response span, not JSON field. For a production
-    fine-tune, replace it with a token-level field mask collator. This normalization
-    is the safe lightweight path for demo/code review: public_binary rows only
-    contribute safe/unsafe-style labels and never ban/limit supervision.
+    For internal data (history_ticket, level_generator, refinement_hard): all tokens
+    in the assistant response contribute to loss normally.
+
+    For public_binary data: only final_judgment and text fields (topic,
+    correlation_analysis, judgment_basis) contribute to loss. The risk_level and
+    handling_suggestion field tokens are masked (label = -100) so that public data
+    does not teach the model risk grading or handling routing.
+
+    This is a two-layer defense:
+      1. Label normalization (belt): public samples are capped at mid_risk/warning.
+      2. Token-level masking (suspenders): even the capped labels are masked from loss
+         so that public samples contribute zero gradient to risk/handling predictions.
+    """
+
+    IGNORE_INDEX = -100
+
+    def __init__(self, response_template: str, tokenizer: Any, formatting_func: Any = None):
+        self.response_template = response_template
+        self.tokenizer = tokenizer
+        self.formatting_func = formatting_func
+        self._response_token_ids = tokenizer.encode(
+            response_template, add_special_tokens=False
+        )
+
+    def __call__(self, features: list[dict[str, Any]]) -> dict[str, Any]:
+        import torch
+
+        batch_input_ids = []
+        batch_attention_mask = []
+        batch_labels = []
+
+        for feature in features:
+            input_ids = feature["input_ids"]
+            attention_mask = feature.get("attention_mask", [1] * len(input_ids))
+            is_public = feature.get("is_public_binary", False)
+
+            # Build labels: mask prompt tokens (before response prefix)
+            labels = list(input_ids)
+            response_start = self._find_response_start(input_ids)
+            for i in range(response_start):
+                labels[i] = self.IGNORE_INDEX
+
+            # For public_binary samples: additionally mask risk_level and
+            # handling_suggestion field tokens within the response
+            if is_public:
+                self._mask_fields_in_response(
+                    input_ids, labels, response_start
+                )
+
+            batch_input_ids.append(torch.tensor(input_ids, dtype=torch.long))
+            batch_attention_mask.append(torch.tensor(attention_mask, dtype=torch.long))
+            batch_labels.append(torch.tensor(labels, dtype=torch.long))
+
+        return {
+            "input_ids": torch.nn.utils.rnn.pad_sequence(
+                batch_input_ids, batch_first=True, padding_value=self.tokenizer.pad_token_id
+            ),
+            "attention_mask": torch.nn.utils.rnn.pad_sequence(
+                batch_attention_mask, batch_first=True, padding_value=0
+            ),
+            "labels": torch.nn.utils.rnn.pad_sequence(
+                batch_labels, batch_first=True, padding_value=self.IGNORE_INDEX
+            ),
+        }
+
+    def _find_response_start(self, input_ids: list[int]) -> int:
+        """Find the token position right after the response template."""
+        template_len = len(self._response_token_ids)
+        for i in range(len(input_ids) - template_len + 1):
+            if input_ids[i : i + template_len] == self._response_token_ids:
+                return i + template_len
+        return 0
+
+    def _mask_fields_in_response(
+        self, input_ids: list[int], labels: list[int], response_start: int
+    ) -> None:
+        """Mask tokens corresponding to risk_level and handling_suggestion fields."""
+        # Decode the response portion to find field spans
+        response_ids = input_ids[response_start:]
+        response_text = self.tokenizer.decode(response_ids, skip_special_tokens=False)
+
+        for match in _FIELD_PATTERN.finditer(response_text):
+            # Find the character span of the matched field
+            char_start, char_end = match.start(), match.end()
+            # Map character positions back to token positions
+            tok_start = self._char_to_token_pos(response_ids, char_start)
+            tok_end = self._char_to_token_pos(response_ids, char_end)
+            # Mask these tokens in labels
+            for idx in range(response_start + tok_start, response_start + tok_end):
+                if idx < len(labels):
+                    labels[idx] = self.IGNORE_INDEX
+
+    def _char_to_token_pos(self, token_ids: list[int], char_pos: int) -> int:
+        """Map a character position in decoded text to a token index."""
+        accumulated = 0
+        for i, tid in enumerate(token_ids):
+            token_text = self.tokenizer.decode([tid], skip_special_tokens=False)
+            accumulated += len(token_text)
+            if accumulated >= char_pos:
+                return i + 1
+        return len(token_ids)
+
+
+def _normalize_public_binary_labels(case: dict[str, Any]) -> dict[str, Any]:
+    """Cap public binary labels conservatively as a safety net.
+
+    Public binary samples lack true risk_level and handling_suggestion annotations.
+    We assign conservative placeholder values (mid_risk/warning for violations,
+    low_risk/ignore for safe) so that even if the field-level mask fails, these
+    samples cannot teach the model to predict ban_account or limit_account.
+
+    The primary defense is the FieldLevelMaskCollator which zeroes out gradients
+    for risk_level and handling_suggestion tokens on public samples. This
+    normalization is the secondary fallback.
     """
     if case.get("task_type") != "public_binary" or not isinstance(case.get("label"), dict):
         return case

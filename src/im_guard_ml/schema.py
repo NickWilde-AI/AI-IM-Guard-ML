@@ -39,6 +39,105 @@ TOPICS = [
 ]
 
 
+# ---------------------------------------------------------------------------
+# Behavior key summary schema
+# ---------------------------------------------------------------------------
+
+# Required fields in behavior_key_summary with their expected types
+BEHAVIOR_KEY_FIELDS: dict[str, type | tuple[type, ...]] = {
+    "login_behavior": str,
+    "search_behavior": str,
+    "follow_behavior": str,
+    "enter_room_behavior": str,
+    "mic_interact_behavior": str,
+    "t_bean_consume": str,
+    "reward_behavior": str,
+    "gift_total_value": (int, float),
+    "gift_total_count": (int, float),
+}
+
+
+@dataclass(slots=True)
+class BehaviorKeySummary:
+    """Structured representation of user behavior signals within the audit window."""
+    login_behavior: str = ""
+    search_behavior: str = ""
+    follow_behavior: str = ""
+    enter_room_behavior: str = ""
+    mic_interact_behavior: str = ""
+    t_bean_consume: str = ""
+    reward_behavior: str = ""
+    gift_total_value: float = 0.0
+    gift_total_count: int = 0
+
+    @classmethod
+    def from_dict(cls, obj: dict[str, Any]) -> "BehaviorKeySummary":
+        return cls(
+            login_behavior=str(obj.get("login_behavior", "") or ""),
+            search_behavior=str(obj.get("search_behavior", "") or ""),
+            follow_behavior=str(obj.get("follow_behavior", "") or ""),
+            enter_room_behavior=str(obj.get("enter_room_behavior", "") or ""),
+            mic_interact_behavior=str(obj.get("mic_interact_behavior", "") or ""),
+            t_bean_consume=str(obj.get("t_bean_consume", "") or ""),
+            reward_behavior=str(obj.get("reward_behavior", "") or ""),
+            gift_total_value=float(obj.get("gift_total_value", 0) or 0),
+            gift_total_count=int(obj.get("gift_total_count", 0) or 0),
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "login_behavior": self.login_behavior,
+            "search_behavior": self.search_behavior,
+            "follow_behavior": self.follow_behavior,
+            "enter_room_behavior": self.enter_room_behavior,
+            "mic_interact_behavior": self.mic_interact_behavior,
+            "t_bean_consume": self.t_bean_consume,
+            "reward_behavior": self.reward_behavior,
+            "gift_total_value": self.gift_total_value,
+            "gift_total_count": self.gift_total_count,
+        }
+
+    def has_abnormal_signals(self) -> bool:
+        """Check if any behavior signals indicate potential abnormality."""
+        high_value_keywords = ("极大额", "大额", "高频", "异地", "批量", "短时间")
+        text_fields = (
+            self.login_behavior + self.reward_behavior +
+            self.t_bean_consume + self.enter_room_behavior
+        )
+        return any(kw in text_fields for kw in high_value_keywords)
+
+
+def validate_behavior_key_summary(summary: dict[str, Any]) -> list[str]:
+    """Validate behavior_key_summary fields and types.
+
+    Returns list of validation errors (empty if valid).
+    """
+    errors: list[str] = []
+    if not isinstance(summary, dict):
+        return ["behavior_key_summary must be a dict"]
+
+    for field_name, expected_type in BEHAVIOR_KEY_FIELDS.items():
+        value = summary.get(field_name)
+        if value is None:
+            continue  # Missing fields are acceptable (default to empty/zero)
+        if not isinstance(value, expected_type):
+            errors.append(
+                f"behavior_key_summary.{field_name}: expected {expected_type.__name__ if isinstance(expected_type, type) else 'number'}, "
+                f"got {type(value).__name__}"
+            )
+
+    # Numeric range checks
+    gift_value = summary.get("gift_total_value")
+    if gift_value is not None and isinstance(gift_value, (int, float)) and gift_value < 0:
+        errors.append("behavior_key_summary.gift_total_value cannot be negative")
+
+    gift_count = summary.get("gift_total_count")
+    if gift_count is not None and isinstance(gift_count, (int, float)) and gift_count < 0:
+        errors.append("behavior_key_summary.gift_total_count cannot be negative")
+
+    return errors
+
+
 @dataclass(slots=True)
 class AuditLabel:
     risk_level: str
