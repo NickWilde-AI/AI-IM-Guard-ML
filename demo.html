@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IM Guard - 智能审核系统</title>
+<style>
+:root {
+  --bg-primary: #0f1923;
+  --bg-secondary: #1a2736;
+  --bg-card: #1e2d3d;
+  --border: #2a3f52;
+  --text-primary: #e8edf2;
+  --text-secondary: #8899aa;
+  --accent-blue: #4dabf7;
+  --accent-green: #51cf66;
+  --accent-red: #ff6b6b;
+  --accent-orange: #ffa94d;
+  --accent-purple: #9775fa;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Helvetica Neue', sans-serif; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; line-height: 1.5; }
+
+.topnav { display: flex; align-items: center; justify-content: space-between; padding: 12px 32px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+.topnav-left { display: flex; align-items: center; gap: 12px; }
+.topnav-logo { width: 28px; height: 28px; background: linear-gradient(135deg, #4dabf7, #9775fa); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: white; }
+.topnav-title { font-size: 15px; font-weight: 600; }
+.topnav-env { font-size: 11px; padding: 2px 8px; background: rgba(81,207,102,0.15); color: var(--accent-green); border-radius: 4px; margin-left: 8px; }
+.topnav-right { display: flex; align-items: center; gap: 16px; font-size: 12px; color: var(--text-secondary); }
+.status-dot { width: 7px; height: 7px; background: var(--accent-green); border-radius: 50%; display: inline-block; margin-right: 6px; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.main { padding: 24px 32px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+
+.kpi { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+.kpi-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.kpi-value { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.kpi-sub { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+.kpi-trend { font-size: 11px; margin-top: 6px; }
+.trend-up { color: var(--accent-red); }
+.trend-down { color: var(--accent-green); }
+.trend-flat { color: var(--text-secondary); }
+
+.section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.section-title { font-size: 13px; font-weight: 600; letter-spacing: 0.5px; color: var(--text-secondary); }
+.section-badge { font-size: 11px; padding: 3px 8px; border-radius: 4px; background: rgba(77,171,247,0.12); color: var(--accent-blue); }
+
+.table { width: 100%; border-collapse: collapse; }
+.table th { text-align: left; font-size: 11px; color: var(--text-secondary); letter-spacing: 0.5px; padding: 8px 12px; border-bottom: 1px solid var(--border); font-weight: 500; }
+.table td { padding: 12px; border-bottom: 1px solid rgba(42,63,82,0.5); font-size: 13px; vertical-align: middle; }
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover td { background: rgba(77,171,247,0.04); }
+
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.tag-high { background: rgba(255,107,107,0.15); color: var(--accent-red); }
+.tag-mid { background: rgba(255,169,77,0.15); color: var(--accent-orange); }
+.tag-low { background: rgba(81,207,102,0.15); color: var(--accent-green); }
+.tag-ban { background: rgba(255,107,107,0.15); color: var(--accent-red); }
+.tag-limit { background: rgba(255,169,77,0.15); color: var(--accent-orange); }
+.tag-warning { background: rgba(255,169,77,0.15); color: var(--accent-orange); }
+.tag-ignore { background: rgba(81,207,102,0.15); color: var(--accent-green); }
+.tag-human { background: rgba(151,117,250,0.15); color: var(--accent-purple); }
+.tag-auto { background: rgba(81,207,102,0.15); color: var(--accent-green); }
+.tag-violation { background: rgba(255,107,107,0.15); color: var(--accent-red); }
+.tag-safe { background: rgba(81,207,102,0.15); color: var(--accent-green); }
+
+.chart-area { height: 160px; position: relative; display: flex; align-items: flex-end; gap: 3px; padding: 0 4px; }
+.chart-bar { flex: 1; border-radius: 2px 2px 0 0; opacity: 0.7; transition: opacity 0.2s; min-width: 4px; }
+.chart-bar:hover { opacity: 1; }
+.chart-bar.red { background: var(--accent-red); }
+.chart-bar.green { background: var(--accent-green); }
+.chart-bar.orange { background: var(--accent-orange); }
+.chart-labels { display: flex; justify-content: space-between; margin-top: 8px; font-size: 10px; color: var(--text-secondary); }
+
+.pipeline { display: flex; align-items: center; gap: 4px; overflow-x: auto; padding: 12px 0; }
+.pipe-node { background: rgba(77,171,247,0.08); border: 1px solid rgba(77,171,247,0.25); border-radius: 6px; padding: 10px 14px; text-align: center; white-space: nowrap; }
+.pipe-node-title { font-size: 12px; font-weight: 600; color: var(--accent-blue); }
+.pipe-node-sub { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+.pipe-arrow { color: var(--text-secondary); font-size: 14px; flex-shrink: 0; }
+.pipe-node.active { border-color: var(--accent-green); background: rgba(81,207,102,0.08); }
+.pipe-node.active .pipe-node-title { color: var(--accent-green); }
+
+.detail-panel { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+.detail-row { display: flex; gap: 16px; margin-bottom: 12px; }
+.detail-label { width: 80px; font-size: 11px; color: var(--text-secondary); flex-shrink: 0; padding-top: 2px; }
+.detail-value { font-size: 13px; color: var(--text-primary); }
+.evidence-block { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-top: 4px; font-size: 13px; line-height: 1.6; }
+
+.metric-bar-container { margin-bottom: 12px; }
+.metric-bar-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+.metric-bar-label { color: var(--text-secondary); }
+.metric-bar-value { color: var(--text-primary); font-weight: 600; }
+.metric-bar { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+.metric-bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+.fill-blue { background: var(--accent-blue); }
+.fill-green { background: var(--accent-green); }
+.fill-red { background: var(--accent-red); }
+.fill-purple { background: var(--accent-purple); }
+
+.alert-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 6px; margin-bottom: 8px; font-size: 12px; }
+.alert-item.pass { background: rgba(81,207,102,0.06); border: 1px solid rgba(81,207,102,0.2); }
+.alert-item.critical { background: rgba(255,107,107,0.06); border: 1px solid rgba(255,107,107,0.2); }
+.alert-icon { font-size: 14px; }
+
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .grid-4 { grid-template-columns: 1fr; }
+  .main { padding: 16px; }
+  .topnav { padding: 12px 16px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-left">
+    <div class="topnav-logo">G</div>
+    <span class="topnav-title">IM Guard 智能审核系统</span>
+    <span class="topnav-env">生产环境</span>
+  </div>
+  <div class="topnav-right">
+    <span><span class="status-dot"></span>系统正常</span>
+    <span>模型: Qwen3.5-27B-SFT-v1</span>
+    <span>2026-05-31 15:00</span>
+  </div>
+</nav>
+
+<div class="main">
+
+  <!-- 核心指标 -->
+  <div class="grid-4">
+    <div class="kpi">
+      <div class="kpi-label">今日审核请求</div>
+      <div class="kpi-value">12,847</div>
+      <div class="kpi-trend trend-flat">↔ 较昨日 -0.3%</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">违规判定</div>
+      <div class="kpi-value" style="color:var(--accent-red)">1,284</div>
+      <div class="kpi-sub">封禁: 142 · 限号: 386 · 警告: 756</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">自动关闭</div>
+      <div class="kpi-value" style="color:var(--accent-green)">11,563</div>
+      <div class="kpi-trend trend-down">↓ 封禁率 1.1% (阈值 <12%)</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">待人工复核</div>
+      <div class="kpi-value" style="color:var(--accent-purple)">142</div>
+      <div class="kpi-sub">平均排队时间: 4.2 分钟</div>
+    </div>
+  </div>
+
+  <!-- 推理链路 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">推理链路</span>
+      <span class="section-badge">P99 延迟: 380ms</span>
+    </div>
+    <div class="pipeline">
+      <div class="pipe-node active">
+        <div class="pipe-node-title">IM 后端</div>
+        <div class="pipe-node-sub">gRPC / HTTP 接入</div>
+      </div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-node active">
+        <div class="pipe-node-title">证据聚合</div>
+        <div class="pipe-node-sub">聊天 + 行为 + 场景</div>
+      </div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-node active">
+        <div class="pipe-node-title">Prompt 渲染</div>
+        <div class="pipe-node-sub">Rubric + 策略表</div>
+      </div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-node active">
+        <div class="pipe-node-title">LLM 推理</div>
+        <div class="pipe-node-sub">vLLM · TP=4 · 前缀缓存</div>
+      </div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-node active">
+        <div class="pipe-node-title">后处理</div>
+        <div class="pipe-node-sub">校验 + 纠错 + 兜底</div>
+      </div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-node active">
+        <div class="pipe-node-title">策略路由</div>
+        <div class="pipe-node-sub">自动 / 人审 / 封禁</div>
+      </div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-node active">
+        <div class="pipe-node-title">审计与监控</div>
+        <div class="pipe-node-sub">日志 + 指标 + 告警</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- 实时审核列表 -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">实时审核结果</span>
+        <span class="section-badge">实时</span>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>工单 ID</th>
+            <th>风险</th>
+            <th>主题</th>
+            <th>处置</th>
+            <th>路由</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-family:monospace; font-size:11px;">im-2026-05-31-008721</td>
+            <td><span class="tag tag-high">高风险</span></td>
+            <td>代刷/包榜</td>
+            <td><span class="tag tag-ban">封禁</span></td>
+            <td><span class="tag tag-human">人工复核</span></td>
+          </tr>
+          <tr>
+            <td style="font-family:monospace; font-size:11px;">im-2026-05-31-008720</td>
+            <td><span class="tag tag-high">高风险</span></td>
+            <td>诈骗引流</td>
+            <td><span class="tag tag-ban">封禁</span></td>
+            <td><span class="tag tag-human">人工复核</span></td>
+          </tr>
+          <tr>
+            <td style="font-family:monospace; font-size:11px;">im-2026-05-31-008719</td>
+            <td><span class="tag tag-mid">中风险</span></td>
+            <td>私下交易</td>
+            <td><span class="tag tag-limit">限号</span></td>
+            <td><span class="tag tag-auto">策略执行</span></td>
+          </tr>
+          <tr>
+            <td style="font-family:monospace; font-size:11px;">im-2026-05-31-008718</td>
+            <td><span class="tag tag-low">低风险</span></td>
+            <td>无主题</td>
+            <td><span class="tag tag-ignore">忽略</span></td>
+            <td><span class="tag tag-auto">自动关闭</span></td>
+          </tr>
+          <tr>
+            <td style="font-family:monospace; font-size:11px;">im-2026-05-31-008717</td>
+            <td><span class="tag tag-low">低风险</span></td>
+            <td>无主题</td>
+            <td><span class="tag tag-ignore">忽略</span></td>
+            <td><span class="tag tag-auto">自动关闭</span></td>
+          </tr>
+          <tr>
+            <td style="font-family:monospace; font-size:11px;">im-2026-05-31-008716</td>
+            <td><span class="tag tag-mid">中风险</span></td>
+            <td>赌博引流</td>
+            <td><span class="tag tag-warning">警告</span></td>
+            <td><span class="tag tag-auto">自动执行</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 处置分布图 -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">处置分布 (24小时)</span>
+        <span class="section-badge">稳定</span>
+      </div>
+      <div class="chart-area">
+        <div class="chart-bar green" style="height:85%"></div>
+        <div class="chart-bar green" style="height:82%"></div>
+        <div class="chart-bar green" style="height:88%"></div>
+        <div class="chart-bar green" style="height:84%"></div>
+        <div class="chart-bar green" style="height:86%"></div>
+        <div class="chart-bar green" style="height:83%"></div>
+        <div class="chart-bar green" style="height:87%"></div>
+        <div class="chart-bar green" style="height:85%"></div>
+        <div class="chart-bar orange" style="height:12%"></div>
+        <div class="chart-bar orange" style="height:14%"></div>
+        <div class="chart-bar orange" style="height:11%"></div>
+        <div class="chart-bar orange" style="height:13%"></div>
+        <div class="chart-bar orange" style="height:12%"></div>
+        <div class="chart-bar orange" style="height:15%"></div>
+        <div class="chart-bar orange" style="height:11%"></div>
+        <div class="chart-bar orange" style="height:13%"></div>
+        <div class="chart-bar red" style="height:6%"></div>
+        <div class="chart-bar red" style="height:5%"></div>
+        <div class="chart-bar red" style="height:7%"></div>
+        <div class="chart-bar red" style="height:4%"></div>
+        <div class="chart-bar red" style="height:6%"></div>
+        <div class="chart-bar red" style="height:5%"></div>
+        <div class="chart-bar red" style="height:8%"></div>
+        <div class="chart-bar red" style="height:5%"></div>
+      </div>
+      <div class="chart-labels">
+        <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
+      </div>
+      <div style="display:flex; gap:16px; margin-top:12px; font-size:11px;">
+        <span><span style="display:inline-block;width:8px;height:8px;background:var(--accent-green);border-radius:2px;margin-right:4px;"></span>忽略放行 (89.9%)</span>
+        <span><span style="display:inline-block;width:8px;height:8px;background:var(--accent-orange);border-radius:2px;margin-right:4px;"></span>警告+限号 (8.9%)</span>
+        <span><span style="display:inline-block;width:8px;height:8px;background:var(--accent-red);border-radius:2px;margin-right:4px;"></span>封禁 (1.1%)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 案例详情 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">案例详情 — im-2026-05-31-008721</span>
+      <span class="tag tag-violation">确认违规</span>
+    </div>
+    <div class="grid-2" style="margin-bottom:0;">
+      <div>
+        <div class="detail-row">
+          <span class="detail-label">审核场景</span>
+          <span class="detail-value">IM私聊 · 无亲密度 · 异地登录</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">礼物金额</span>
+          <span class="detail-value">¥10,000 (5笔 · 30分钟内)</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">行为特征</span>
+          <span class="detail-value">极大额消费 · 高频大额打赏 · 推高榜单</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">聊天证据</span>
+          <div class="evidence-block">
+            <div style="margin-bottom:8px;"><span style="color:var(--text-secondary)">[19:00:00]</span> 帮我代刷一下今晚的周榜，包榜到第一。</div>
+            <div><span style="color:var(--text-secondary)">[19:01:00]</span> 没问题，价格按刚才商量的来，保证第一。</div>
+          </div>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">异常行为</span>
+          <div class="evidence-block" style="border-color:rgba(255,107,107,0.3);">
+            <span class="tag tag-high" style="margin-bottom:4px;">代刷/包榜行为</span><br>
+            30分钟内对目标主播突发性大额打赏1万元
+          </div>
+        </div>
+      </div>
+      <div class="detail-panel">
+        <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px; letter-spacing:0.5px;">模型输出</div>
+        <div class="detail-row">
+          <span class="detail-label">风险等级</span>
+          <span class="tag tag-high">高风险</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">违规主题</span>
+          <span class="detail-value">代刷/包榜</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">违规判定</span>
+          <span class="tag tag-violation">存在违规</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">处置建议</span>
+          <span class="tag tag-ban">封禁账号</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">路由决策</span>
+          <span class="tag tag-human">需人工复核</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">关联分析</span>
+          <span class="detail-value" style="font-size:12px; line-height:1.6;">聊天中明确约定代刷包榜并确认价格，行为侧30分钟内突发性大额打赏1万元与冲榜目标高度吻合，形成"意图—承诺—执行"完整闭环。</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">判定依据</span>
+          <span class="detail-value" style="font-size:12px; line-height:1.6;">明确代刷约定 + 确认交易条款 + 突发大额打赏行为印证，证据链完整，符合高风险封禁标准。</span>
+        </div>
+        <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border); font-size:11px; color:var(--text-secondary);">
+          模型版本: qwen3.5-27b-sft-v1 · Prompt版本: v3.2 · Rubric版本: v2.1 · 推理延迟: 342ms
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <!-- 模型性能 -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">模型性能指标</span>
+        <span class="section-badge">测试集: 1024 样本</span>
+      </div>
+      <div class="metric-bar-container">
+        <div class="metric-bar-header">
+          <span class="metric-bar-label">违规判定准确率</span>
+          <span class="metric-bar-value">82.1%</span>
+        </div>
+        <div class="metric-bar"><div class="metric-bar-fill fill-blue" style="width:82.1%"></div></div>
+      </div>
+      <div class="metric-bar-container">
+        <div class="metric-bar-header">
+          <span class="metric-bar-label">风险等级 macro-F1</span>
+          <span class="metric-bar-value">75.6%</span>
+        </div>
+        <div class="metric-bar"><div class="metric-bar-fill fill-purple" style="width:75.6%"></div></div>
+      </div>
+      <div class="metric-bar-container">
+        <div class="metric-bar-header">
+          <span class="metric-bar-label">处置建议 macro-F1</span>
+          <span class="metric-bar-value">73.2%</span>
+        </div>
+        <div class="metric-bar"><div class="metric-bar-fill fill-green" style="width:73.2%"></div></div>
+      </div>
+      <div class="metric-bar-container">
+        <div class="metric-bar-header">
+          <span class="metric-bar-label">封禁误报率 (FPR)</span>
+          <span class="metric-bar-value" style="color:var(--accent-green)">2.6%</span>
+        </div>
+        <div class="metric-bar"><div class="metric-bar-fill fill-red" style="width:2.6%"></div></div>
+      </div>
+      <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border); font-size:11px; color:var(--text-secondary);">
+        对比 Qwen3.6-plus 基线: 准确率 +3.2pp · 风险F1 +17.2pp · 处置F1 +6.7pp
+      </div>
+    </div>
+
+    <!-- 质量守卫 -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">质量守卫</span>
+        <span class="section-badge">全部通过</span>
+      </div>
+      <div class="alert-item pass">
+        <span class="alert-icon">✓</span>
+        <span>封禁率 = 1.1% (阈值: <12%)</span>
+      </div>
+      <div class="alert-item pass">
+        <span class="alert-icon">✓</span>
+        <span>解析错误率 = 0.02% (阈值: <5%)</span>
+      </div>
+      <div class="alert-item pass">
+        <span class="alert-icon">✓</span>
+        <span>行为证据缺失率 = 0.0% (阈值: <10%)</span>
+      </div>
+      <div class="alert-item pass">
+        <span class="alert-icon">✓</span>
+        <span>风险分布 PSI = 0.003 (阈值: <0.2)</span>
+      </div>
+      <div class="alert-item pass">
+        <span class="alert-icon">✓</span>
+        <span>处置分布卡方检验 p = 0.87 (阈值: >0.05)</span>
+      </div>
+      <div class="alert-item pass">
+        <span class="alert-icon">✓</span>
+        <span>礼物金额 KS 统计量 D = 0.04 (阈值: <0.15)</span>
+      </div>
+    </div>
+
+    <!-- 版本与配置 -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">系统版本</span>
+      </div>
+      <table class="table">
+        <tbody>
+          <tr><td style="color:var(--text-secondary)">模型</td><td>qwen3.5-27b-sft-v1</td></tr>
+          <tr><td style="color:var(--text-secondary)">Prompt</td><td>v3.2 (2026-05-28)</td></tr>
+          <tr><td style="color:var(--text-secondary)">Rubric</td><td>v2.1 (11主题 × 3级)</td></tr>
+          <tr><td style="color:var(--text-secondary)">特征 Schema</td><td>v1.0 (9个行为字段)</td></tr>
+          <tr><td style="color:var(--text-secondary)">后处理规则</td><td>v1.2 (封禁降级规则)</td></tr>
+          <tr><td style="color:var(--text-secondary)">训练数据</td><td>51.4K (内部24.5K + 合成11.6K + 回灌2.6K + 公开12.7K)</td></tr>
+          <tr><td style="color:var(--text-secondary)">部署方式</td><td>vLLM · TP=4 · A100×4</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
