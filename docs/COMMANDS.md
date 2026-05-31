@@ -1,8 +1,8 @@
-# Commands
+# 命令手册
 
-This document lists the most common commands for local demos, data checks, evaluation, monitoring, and deployment.
+本文档整理本项目常用命令，覆盖本地 demo、数据检查、评测、监控、告警、训练和部署。
 
-## Local Demo
+## 本地 Demo
 
 ```bash
 PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml summary data/samples/sample_cases.jsonl
@@ -19,7 +19,7 @@ PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml alerts o
 PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml audit-data data/samples/sample_cases.jsonl
 ```
 
-## Makefile Shortcuts
+## Makefile 快捷命令
 
 ```bash
 make summary
@@ -33,7 +33,7 @@ make build-demo
 make compile
 ```
 
-## Build Training Data
+## 构造训练数据
 
 ```bash
 PYTHONPATH=src python3 -m im_guard_ml.build_dataset \
@@ -44,14 +44,14 @@ PYTHONPATH=src python3 -m im_guard_ml.build_dataset \
   --out data/train/im_audit_train.jsonl
 ```
 
-## Train
+## 训练
 
 ```bash
 pip install -e ".[train]"
 im-guard --config configs/default.yaml train data/train/im_audit_train.jsonl
 ```
 
-Enable LoRA in `configs/default.yaml`:
+在 `configs/default.yaml` 中开启 LoRA：
 
 ```yaml
 training:
@@ -59,7 +59,7 @@ training:
     enabled: true
 ```
 
-## API Service
+## API 服务
 
 ```bash
 pip install -e ".[serve]"

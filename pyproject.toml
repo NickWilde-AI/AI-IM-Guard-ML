@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ai-im-guard-ml"
 version = "0.1.0"
-description = "Enterprise-grade AI/ML risk auditing framework for IM private-chat moderation."
+description = "面向 IM 私聊风控审核场景的企业级 AI/ML 多证据风险审核框架。"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{ name = "Chen Peng" }]
