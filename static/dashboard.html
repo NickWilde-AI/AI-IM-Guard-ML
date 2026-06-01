@@ -76,7 +76,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica
 .pipe-node-sub { font-size: 10px; color: var(--text-secondary); margin-top: 3px; }
 .pipe-arrow { color: #cbd5e1; font-size: 16px; flex-shrink: 0; }
 
-/* Removed old chart styles */
+/* SVG area chart smooth transitions */
+#areaChart path, #areaChart polyline { transition: d 0.6s ease, opacity 0.3s; }
+#areaChart text { transition: opacity 0.3s; }
 
 .metric-bar-container { margin-bottom: 14px; }
 .metric-bar-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
@@ -358,46 +360,85 @@ async function refresh(){
 
 function renderAreaChart(){
   const svg=document.getElementById('areaChart');
-  if(chartData.length<3){svg.innerHTML='<text x="50%" y="65" text-anchor="middle" fill="#94a3b8" font-size="12">数据积累中...</text>';return;}
   const w=svg.clientWidth||500, h=130, pad=2;
+
+  // 初始化固定 SVG 元素（只创建一次）
+  if(!svg.dataset.init){
+    svg.innerHTML=`
+      <path id="areaIgnore" fill="#86efac" opacity="0.7" d=""/>
+      <path id="areaWarn" fill="#fcd34d" opacity="0.7" d=""/>
+      <path id="areaBan" fill="#fca5a5" opacity="0.7" d=""/>
+      <polyline id="lineBan" fill="none" stroke="#ef4444" stroke-width="1.5" opacity="0.6" points=""/>
+      <line id="baseLine" x1="${pad}" y1="${h-pad}" x2="${w-pad}" y2="${h-pad}" stroke="#e2e8f0" stroke-width="0.5"/>
+      <text id="chartLabel" x="${w-4}" y="14" text-anchor="end" fill="#64748b" font-size="10"></text>
+      <text id="chartWait" x="50%" y="65" text-anchor="middle" fill="#94a3b8" font-size="12">数据积累中...</text>
+    `;
+    svg.dataset.init='1';
+  }
+
+  if(chartData.length<3){
+    document.getElementById('chartWait').style.opacity='1';
+    return;
+  }
+  document.getElementById('chartWait').style.opacity='0';
+
   const n=chartData.length;
-  // 每个 tick 的总量
   const totals=chartData.map(d=>d.ignore+d.warn+d.ban);
   const maxT=Math.max(...totals,1);
-
-  // 计算三层的 y 坐标 (从下往上: ignore, warn, ban)
   function getY(val){return h-pad-(val/maxT)*(h-pad*2)}
 
-  // 生成路径点
-  let ptsIgnore=[], ptsWarn=[], ptsBan=[];
+  let pathIgnore='', pathWarn='', pathBan='', ptsBanLine='';
+  let baseRev='';
+
   for(let i=0;i<n;i++){
-    const x=pad+(i/(n-1))*(w-pad*2);
+    const x=(pad+(i/(n-1))*(w-pad*2)).toFixed(1);
     const d=chartData[i];
-    const yI=getY(d.ignore);
-    const yW=getY(d.ignore+d.warn);
-    const yB=getY(d.ignore+d.warn+d.ban);
-    ptsIgnore.push([x,yI]);
-    ptsWarn.push([x,yW]);
-    ptsBan.push([x,yB]);
+    const yI=getY(d.ignore).toFixed(1);
+    const yW=getY(d.ignore+d.warn).toFixed(1);
+    const yB=getY(d.ignore+d.warn+d.ban).toFixed(1);
+    const yBase=(h-pad).toFixed(1);
+
+    if(i===0){
+      pathIgnore+=`M${x},${yI}`;
+      pathWarn+=`M${x},${yW}`;
+      pathBan+=`M${x},${yB}`;
+      baseRev=`L${x},${yBase}`;
+    }else{
+      pathIgnore+=`L${x},${yI}`;
+      pathWarn+=`L${x},${yW}`;
+      pathBan+=`L${x},${yB}`;
+      baseRev=`L${x},${yBase}`+baseRev;
+    }
+    ptsBanLine+=`${x},${yB} `;
   }
 
-  function areaPath(upper,lower){
-    const fwd=upper.map(p=>p.join(',')).join(' ');
-    const rev=[...lower].reverse().map(p=>p.join(',')).join(' ');
-    return `${fwd} ${rev}`;
-  }
-  const baseline=Array.from({length:n},(_,i)=>[pad+(i/(n-1))*(w-pad*2),h-pad]);
+  // Close paths: ignore底部是baseline, warn底部是ignore顶, ban底部是warn顶
+  const lastX=(pad+((n-1)/(n-1))*(w-pad*2)).toFixed(1);
+  const firstX=pad.toFixed(1);
+  const yBase=(h-pad).toFixed(1);
 
-  svg.innerHTML=`
-    <polygon points="${areaPath(ptsIgnore,baseline)}" fill="#86efac" opacity="0.7"/>
-    <polygon points="${areaPath(ptsWarn,ptsIgnore)}" fill="#fcd34d" opacity="0.7"/>
-    <polygon points="${areaPath(ptsBan,ptsWarn)}" fill="#fca5a5" opacity="0.7"/>
-    <polyline points="${ptsBan.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#ef4444" stroke-width="1.5" opacity="0.6"/>
-    <polyline points="${ptsWarn.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#d97706" stroke-width="1" opacity="0.4"/>
-    <polyline points="${ptsIgnore.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#16a34a" stroke-width="1" opacity="0.4"/>
-    <line x1="${pad}" y1="${h-pad}" x2="${w-pad}" y2="${h-pad}" stroke="#e2e8f0" stroke-width="0.5"/>
-    <text x="${w-4}" y="14" text-anchor="end" fill="#64748b" font-size="10">最大: ${maxT}</text>
-  `;
+  // ignore area: top=ignore line, bottom=baseline
+  const ignoreClose=`L${lastX},${yBase}L${firstX},${yBase}Z`;
+  // warn area: top=warn line, bottom=ignore line (reversed)
+  let ignoreRev='';
+  for(let i=n-1;i>=0;i--){
+    const x=(pad+(i/(n-1))*(w-pad*2)).toFixed(1);
+    const yI=getY(chartData[i].ignore).toFixed(1);
+    ignoreRev+=`L${x},${yI}`;
+  }
+  // ban area: top=ban line, bottom=warn line (reversed)
+  let warnRev='';
+  for(let i=n-1;i>=0;i--){
+    const x=(pad+(i/(n-1))*(w-pad*2)).toFixed(1);
+    const yW=getY(chartData[i].ignore+chartData[i].warn).toFixed(1);
+    warnRev+=`L${x},${yW}`;
+  }
+
+  document.getElementById('areaIgnore').setAttribute('d', pathIgnore+ignoreClose);
+  document.getElementById('areaWarn').setAttribute('d', pathWarn+ignoreRev+'Z');
+  document.getElementById('areaBan').setAttribute('d', pathBan+warnRev+'Z');
+  document.getElementById('lineBan').setAttribute('points', ptsBanLine.trim());
+  document.getElementById('chartLabel').textContent=`峰值: ${maxT}`;
 }
 
 refresh();
