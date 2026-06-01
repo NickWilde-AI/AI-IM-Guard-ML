@@ -177,11 +177,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica
         <span class="section-badge" id="distBadge">-</span>
       </div>
       <!-- 总体比例条 -->
-      <div style="margin-bottom:16px;">
-        <div style="display:flex;height:32px;border-radius:6px;overflow:hidden;background:#f1f5f9;" id="ratioBar">
-          <div style="background:#86efac;transition:width 0.6s;" id="ratioGreen"></div>
-          <div style="background:#fcd34d;transition:width 0.6s;" id="ratioOrange"></div>
-          <div style="background:#fca5a5;transition:width 0.6s;" id="ratioRed"></div>
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;height:28px;border-radius:6px;overflow:hidden;background:#f1f5f9;" id="ratioBar">
+          <div style="background:#4ade80;transition:width 0.6s;" id="ratioGreen"></div>
+          <div style="background:#fbbf24;transition:width 0.6s;" id="ratioOrange"></div>
+          <div style="background:#f87171;transition:width 0.6s;" id="ratioRed"></div>
         </div>
         <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--text-secondary);">
           <span>忽略 <b id="rateIgnore" style="color:var(--accent-green)">-</b></span>
@@ -189,10 +189,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica
           <span>封禁 <b id="rateBan" style="color:var(--accent-red)">-</b></span>
         </div>
       </div>
-      <!-- 趋势折线图 -->
-      <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;">请求量趋势 (每次刷新)</div>
-      <svg id="trendChart" width="100%" height="100" style="display:block;"></svg>
-      <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:var(--text-secondary);"><span>← 历史</span><span>最新 →</span></div>
+      <!-- 堆叠面积图 -->
+      <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">处置趋势 (堆叠面积图)</div>
+      <svg id="areaChart" width="100%" height="130" style="display:block;" preserveAspectRatio="none"></svg>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--text-secondary);"><span>← 历史</span><span>最新 →</span></div>
     </div>
   </div>
 
@@ -237,7 +237,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica
 <script>
 const API_BASE = 'http://127.0.0.1:8000';
 let prevTotal = 0;
-let chartData = []; // [{ignore, warn, ban, ts}]
+let chartData = []; // [{ignore, warn, ban}] per tick (incremental)
 
 function riskTag(l){const m={high_risk:['高风险','tag-high'],mid_risk:['中风险','tag-mid'],low_risk:['低风险','tag-low']};const[t,c]=m[l]||['未知','tag-low'];return `<span class="tag ${c}">${t}</span>`}
 function handleTag(h){const m={ban_account:['封禁','tag-ban'],limit_account:['限号','tag-limit'],warning:['警告','tag-warning'],ignore:['忽略','tag-ignore']};const[t,c]=m[h]||[h,''];return `<span class="tag ${c}">${t}</span>`}
@@ -295,9 +295,15 @@ async function refresh(){
         </tr>`).join('');
     }
 
-    // 图表数据
+    // 图表数据 (每 tick 的增量)
     if(total>prevTotal){
-      chartData.push(total);
+      const prevC=chartData.length>0?chartData[chartData.length-1]._cum:{i:0,w:0,b:0};
+      chartData.push({
+        ignore:c.ignore_total-prevC.i,
+        warn:(c.warning_total+c.limit_total)-prevC.w,
+        ban:c.ban_total-prevC.b,
+        _cum:{i:c.ignore_total,w:c.warning_total+c.limit_total,b:c.ban_total}
+      });
       if(chartData.length>60)chartData.shift();
     }
 
@@ -315,8 +321,8 @@ async function refresh(){
       document.getElementById('distBadge').textContent=`共 ${total} 条`;
     }
 
-    // SVG 折线图
-    renderTrendChart();
+    // 堆叠面积图
+    renderAreaChart();
 
     // 质量守卫
     if(total>=10){
@@ -350,26 +356,47 @@ async function refresh(){
   }
 }
 
-function renderTrendChart(){
-  const svg=document.getElementById('trendChart');
-  if(chartData.length<2){svg.innerHTML='<text x="50%" y="50" text-anchor="middle" fill="#94a3b8" font-size="12">数据积累中...</text>';return;}
-  const w=svg.clientWidth||400, h=100;
-  const maxV=Math.max(...chartData);
-  const minV=Math.min(...chartData);
-  const range=maxV-minV||1;
-  const pts=chartData.map((v,i)=>{
-    const x=(i/(chartData.length-1))*w;
-    const y=h-8-((v-minV)/range)*(h-16);
-    return `${x},${y}`;
-  });
-  const areapts=[`0,${h}`,...pts,`${w},${h}`].join(' ');
+function renderAreaChart(){
+  const svg=document.getElementById('areaChart');
+  if(chartData.length<3){svg.innerHTML='<text x="50%" y="65" text-anchor="middle" fill="#94a3b8" font-size="12">数据积累中...</text>';return;}
+  const w=svg.clientWidth||500, h=130, pad=2;
+  const n=chartData.length;
+  // 每个 tick 的总量
+  const totals=chartData.map(d=>d.ignore+d.warn+d.ban);
+  const maxT=Math.max(...totals,1);
+
+  // 计算三层的 y 坐标 (从下往上: ignore, warn, ban)
+  function getY(val){return h-pad-(val/maxT)*(h-pad*2)}
+
+  // 生成路径点
+  let ptsIgnore=[], ptsWarn=[], ptsBan=[];
+  for(let i=0;i<n;i++){
+    const x=pad+(i/(n-1))*(w-pad*2);
+    const d=chartData[i];
+    const yI=getY(d.ignore);
+    const yW=getY(d.ignore+d.warn);
+    const yB=getY(d.ignore+d.warn+d.ban);
+    ptsIgnore.push([x,yI]);
+    ptsWarn.push([x,yW]);
+    ptsBan.push([x,yB]);
+  }
+
+  function areaPath(upper,lower){
+    const fwd=upper.map(p=>p.join(',')).join(' ');
+    const rev=[...lower].reverse().map(p=>p.join(',')).join(' ');
+    return `${fwd} ${rev}`;
+  }
+  const baseline=Array.from({length:n},(_,i)=>[pad+(i/(n-1))*(w-pad*2),h-pad]);
+
   svg.innerHTML=`
-    <defs><linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563eb" stop-opacity="0.15"/><stop offset="100%" stop-color="#2563eb" stop-opacity="0.02"/></linearGradient></defs>
-    <polygon points="${areapts}" fill="url(#areaGrad)"/>
-    <polyline points="${pts.join(' ')}" fill="none" stroke="#2563eb" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-    <circle cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="4" fill="#2563eb"/>
-    <text x="${w-4}" y="12" text-anchor="end" fill="#64748b" font-size="10">${maxV}</text>
-    <text x="${w-4}" y="${h-2}" text-anchor="end" fill="#64748b" font-size="10">${minV}</text>
+    <polygon points="${areaPath(ptsIgnore,baseline)}" fill="#86efac" opacity="0.7"/>
+    <polygon points="${areaPath(ptsWarn,ptsIgnore)}" fill="#fcd34d" opacity="0.7"/>
+    <polygon points="${areaPath(ptsBan,ptsWarn)}" fill="#fca5a5" opacity="0.7"/>
+    <polyline points="${ptsBan.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#ef4444" stroke-width="1.5" opacity="0.6"/>
+    <polyline points="${ptsWarn.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#d97706" stroke-width="1" opacity="0.4"/>
+    <polyline points="${ptsIgnore.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#16a34a" stroke-width="1" opacity="0.4"/>
+    <line x1="${pad}" y1="${h-pad}" x2="${w-pad}" y2="${h-pad}" stroke="#e2e8f0" stroke-width="0.5"/>
+    <text x="${w-4}" y="14" text-anchor="end" fill="#64748b" font-size="10">最大: ${maxT}</text>
   `;
 }
 
