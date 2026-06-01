@@ -6,99 +6,101 @@
 <title>IM Guard - 智能审核监控大盘</title>
 <style>
 :root {
-  --bg-primary: #0f1923;
-  --bg-secondary: #1a2736;
-  --bg-card: #1e2d3d;
-  --border: #2a3f52;
-  --text-primary: #e8edf2;
-  --text-secondary: #8899aa;
-  --accent-blue: #4dabf7;
-  --accent-green: #51cf66;
-  --accent-red: #ff6b6b;
-  --accent-orange: #ffa94d;
-  --accent-purple: #9775fa;
+  --bg: #f8f9fb;
+  --bg-card: #ffffff;
+  --border: #e5e8ed;
+  --text: #1a2233;
+  --text-secondary: #6b7a90;
+  --accent-blue: #2563eb;
+  --accent-green: #16a34a;
+  --accent-red: #dc2626;
+  --accent-orange: #d97706;
+  --accent-purple: #7c3aed;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'SF Pro Text', sans-serif; background: var(--bg-primary); color: var(--text-primary); font-size: 14px; line-height: 1.5; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
 
-.topnav { display: flex; align-items: center; justify-content: space-between; padding: 12px 32px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+.topnav { display: flex; align-items: center; justify-content: space-between; padding: 14px 32px; background: #fff; border-bottom: 1px solid var(--border); box-shadow: var(--shadow); }
 .topnav-left { display: flex; align-items: center; gap: 12px; }
-.topnav-logo { width: 28px; height: 28px; background: linear-gradient(135deg, #4dabf7, #9775fa); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: white; }
-.topnav-title { font-size: 15px; font-weight: 600; }
-.topnav-env { font-size: 11px; padding: 2px 8px; background: rgba(81,207,102,0.15); color: var(--accent-green); border-radius: 4px; }
-.topnav-right { display: flex; align-items: center; gap: 16px; font-size: 12px; color: var(--text-secondary); }
-.status-dot { width: 7px; height: 7px; background: var(--accent-green); border-radius: 50%; display: inline-block; margin-right: 6px; animation: pulse 2s infinite; }
-.status-dot.offline { background: var(--accent-red); }
-@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+.topnav-logo { width: 32px; height: 32px; background: linear-gradient(135deg, #2563eb, #7c3aed); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; color: white; }
+.topnav-title { font-size: 16px; font-weight: 600; color: var(--text); }
+.topnav-env { font-size: 11px; padding: 3px 10px; background: #ecfdf5; color: var(--accent-green); border-radius: 12px; font-weight: 500; }
+.topnav-right { display: flex; align-items: center; gap: 20px; font-size: 12px; color: var(--text-secondary); }
+.status-dot { width: 8px; height: 8px; background: var(--accent-green); border-radius: 50%; display: inline-block; margin-right: 6px; animation: pulse 2s infinite; }
+.status-dot.offline { background: var(--accent-red); animation: none; }
+@keyframes pulse { 0%,100%{opacity:1;}50%{opacity:0.4;} }
 
-.main { padding: 24px 32px; }
+.main { padding: 24px 32px; max-width: 1440px; margin: 0 auto; }
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
 
-.kpi { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; transition: border-color 0.3s; }
-.kpi.flash { border-color: var(--accent-blue); }
-.kpi-label { font-size: 11px; color: var(--text-secondary); letter-spacing: 0.5px; margin-bottom: 8px; }
-.kpi-value { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; transition: color 0.3s; }
-.kpi-sub { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+.kpi { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; box-shadow: var(--shadow); transition: transform 0.15s; }
+.kpi:hover { transform: translateY(-1px); }
+.kpi-label { font-size: 12px; color: var(--text-secondary); font-weight: 500; margin-bottom: 8px; }
+.kpi-value { font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.kpi-sub { font-size: 11px; color: var(--text-secondary); margin-top: 6px; }
+.kpi-trend { font-size: 11px; margin-top: 6px; display: inline-block; padding: 2px 6px; border-radius: 4px; }
+.trend-good { background: #ecfdf5; color: var(--accent-green); }
+.trend-bad { background: #fef2f2; color: var(--accent-red); }
 
-.section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+.section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; box-shadow: var(--shadow); margin-bottom: 24px; }
 .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.section-title { font-size: 13px; font-weight: 600; letter-spacing: 0.5px; color: var(--text-secondary); }
-.section-badge { font-size: 11px; padding: 3px 8px; border-radius: 4px; background: rgba(77,171,247,0.12); color: var(--accent-blue); }
+.section-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.section-badge { font-size: 11px; padding: 3px 10px; border-radius: 12px; background: #eff6ff; color: var(--accent-blue); font-weight: 500; }
 
 .table { width: 100%; border-collapse: collapse; }
-.table th { text-align: left; font-size: 11px; color: var(--text-secondary); letter-spacing: 0.5px; padding: 8px 12px; border-bottom: 1px solid var(--border); font-weight: 500; }
-.table td { padding: 10px 12px; border-bottom: 1px solid rgba(42,63,82,0.5); font-size: 12px; vertical-align: middle; }
+.table th { text-align: left; font-size: 11px; color: var(--text-secondary); font-weight: 500; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.table td { padding: 11px 12px; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
 .table tr:last-child td { border-bottom: none; }
-.table tr.new-row { animation: fadeIn 0.5s ease; }
-@keyframes fadeIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+.table tr:hover td { background: #f9fafb; }
+.table tr.new-row td { animation: rowFlash 0.8s ease; }
+@keyframes rowFlash { 0%{background:#eff6ff;} 100%{background:transparent;} }
 
-.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
-.tag-high { background: rgba(255,107,107,0.15); color: var(--accent-red); }
-.tag-mid { background: rgba(255,169,77,0.15); color: var(--accent-orange); }
-.tag-low { background: rgba(81,207,102,0.15); color: var(--accent-green); }
-.tag-ban { background: rgba(255,107,107,0.15); color: var(--accent-red); }
-.tag-limit { background: rgba(255,169,77,0.15); color: var(--accent-orange); }
-.tag-warning { background: rgba(255,169,77,0.15); color: var(--accent-orange); }
-.tag-ignore { background: rgba(81,207,102,0.15); color: var(--accent-green); }
-.tag-human { background: rgba(151,117,250,0.15); color: var(--accent-purple); }
-.tag-auto { background: rgba(81,207,102,0.15); color: var(--accent-green); }
+.tag { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+.tag-high { background: #fef2f2; color: var(--accent-red); }
+.tag-mid { background: #fffbeb; color: var(--accent-orange); }
+.tag-low { background: #ecfdf5; color: var(--accent-green); }
+.tag-ban { background: #fef2f2; color: var(--accent-red); }
+.tag-limit { background: #fffbeb; color: var(--accent-orange); }
+.tag-warning { background: #fffbeb; color: var(--accent-orange); }
+.tag-ignore { background: #ecfdf5; color: var(--accent-green); }
+.tag-human { background: #f5f3ff; color: var(--accent-purple); }
+.tag-auto { background: #ecfdf5; color: var(--accent-green); }
 
-.pipeline { display: flex; align-items: center; gap: 4px; overflow-x: auto; padding: 12px 0; }
-.pipe-node { background: rgba(77,171,247,0.08); border: 1px solid rgba(77,171,247,0.25); border-radius: 6px; padding: 10px 14px; text-align: center; white-space: nowrap; }
-.pipe-node-title { font-size: 12px; font-weight: 600; color: var(--accent-blue); }
-.pipe-node-sub { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
-.pipe-arrow { color: var(--text-secondary); font-size: 14px; flex-shrink: 0; }
-.pipe-node.active { border-color: var(--accent-green); background: rgba(81,207,102,0.08); }
-.pipe-node.active .pipe-node-title { color: var(--accent-green); }
+.pipeline { display: flex; align-items: center; gap: 6px; overflow-x: auto; padding: 16px 0; }
+.pipe-node { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; text-align: center; white-space: nowrap; transition: border-color 0.3s; }
+.pipe-node.active { border-color: var(--accent-green); background: #f0fdf4; }
+.pipe-node-title { font-size: 12px; font-weight: 600; color: var(--text); }
+.pipe-node-sub { font-size: 10px; color: var(--text-secondary); margin-top: 3px; }
+.pipe-arrow { color: #cbd5e1; font-size: 16px; flex-shrink: 0; }
 
-.bar-chart { display: flex; align-items: flex-end; gap: 2px; height: 120px; padding: 0 4px; }
-.bar { flex: 1; border-radius: 2px 2px 0 0; transition: height 0.5s ease; min-width: 6px; }
-.bar-green { background: var(--accent-green); opacity: 0.7; }
-.bar-orange { background: var(--accent-orange); opacity: 0.7; }
-.bar-red { background: var(--accent-red); opacity: 0.7; }
+/* 图表 */
+.chart-container { height: 140px; display: flex; align-items: flex-end; gap: 2px; padding: 0; }
+.chart-col { display: flex; flex-direction: column; justify-content: flex-end; flex: 1; height: 100%; gap: 1px; }
+.chart-segment { border-radius: 2px; transition: height 0.4s ease; min-height: 0; }
+.seg-green { background: #86efac; }
+.seg-orange { background: #fcd34d; }
+.seg-red { background: #fca5a5; }
+.chart-time-labels { display: flex; justify-content: space-between; margin-top: 8px; font-size: 10px; color: var(--text-secondary); }
 
-.metric-bar-container { margin-bottom: 12px; }
-.metric-bar-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+.metric-bar-container { margin-bottom: 14px; }
+.metric-bar-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
 .metric-bar-label { color: var(--text-secondary); }
-.metric-bar-value { color: var(--text-primary); font-weight: 600; }
-.metric-bar { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
-.metric-bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+.metric-bar-value { color: var(--text); font-weight: 600; }
+.metric-bar { height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+.metric-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
 
-.alert-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; font-size: 12px; }
-.alert-item.pass { background: rgba(81,207,102,0.06); border: 1px solid rgba(81,207,102,0.2); }
-.alert-item.warn { background: rgba(255,169,77,0.06); border: 1px solid rgba(255,169,77,0.2); }
-.alert-item.critical { background: rgba(255,107,107,0.06); border: 1px solid rgba(255,107,107,0.2); }
+.alert-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 12px; }
+.alert-item.pass { background: #f0fdf4; border: 1px solid #bbf7d0; }
+.alert-item.critical { background: #fef2f2; border: 1px solid #fecaca; }
 
-.connect-status { padding: 8px 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); font-size: 11px; color: var(--text-secondary); text-align: center; display: none; }
-.connect-status.show { display: block; }
-.connect-status.error { background: rgba(255,107,107,0.1); color: var(--accent-red); }
+.connect-banner { padding: 10px 32px; background: #fef2f2; border-bottom: 1px solid #fecaca; font-size: 12px; color: var(--accent-red); text-align: center; display: none; }
+.connect-banner.show { display: block; }
 
-@media (max-width: 1024px) {
-  .grid-4 { grid-template-columns: repeat(2, 1fr); }
-  .grid-2, .grid-3 { grid-template-columns: 1fr; }
-}
+@media (max-width: 1024px) { .grid-4 { grid-template-columns: repeat(2,1fr); } .grid-2,.grid-3 { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .grid-4 { grid-template-columns: 1fr; } .main { padding: 16px; } }
 </style>
 </head>
 <body>
@@ -111,299 +113,250 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'SF Pro Te
   </div>
   <div class="topnav-right">
     <span><span class="status-dot" id="statusDot"></span><span id="statusText">连接中...</span></span>
-    <span id="modelInfo">模型: -</span>
-    <span id="uptimeInfo">运行: -</span>
+    <span id="modelInfo">-</span>
+    <span id="uptimeInfo">-</span>
   </div>
 </nav>
-
-<div class="connect-status" id="connectStatus"></div>
+<div class="connect-banner" id="connectBanner"></div>
 
 <div class="main">
 
-  <!-- 核心指标 -->
   <div class="grid-4">
-    <div class="kpi" id="kpiTotal">
+    <div class="kpi">
       <div class="kpi-label">累计审核请求</div>
-      <div class="kpi-value" id="valTotal">0</div>
-      <div class="kpi-sub" id="subTotal">等待数据...</div>
+      <div class="kpi-value" id="valTotal">-</div>
+      <div class="kpi-sub" id="subThroughput">-</div>
     </div>
-    <div class="kpi" id="kpiViolation">
+    <div class="kpi">
       <div class="kpi-label">违规判定</div>
-      <div class="kpi-value" id="valViolation" style="color:var(--accent-red)">0</div>
-      <div class="kpi-sub" id="subViolation">封禁: 0 · 限号: 0 · 警告: 0</div>
+      <div class="kpi-value" style="color:var(--accent-red)" id="valViolation">-</div>
+      <div class="kpi-sub" id="subViolation">-</div>
     </div>
-    <div class="kpi" id="kpiSafe">
+    <div class="kpi">
       <div class="kpi-label">安全放行</div>
-      <div class="kpi-value" id="valSafe" style="color:var(--accent-green)">0</div>
-      <div class="kpi-sub" id="subSafe">自动关闭</div>
+      <div class="kpi-value" style="color:var(--accent-green)" id="valSafe">-</div>
+      <div class="kpi-trend trend-good" id="trendSafe">-</div>
     </div>
-    <div class="kpi" id="kpiHuman">
-      <div class="kpi-label">待人工复核</div>
-      <div class="kpi-value" id="valHuman" style="color:var(--accent-purple)">0</div>
-      <div class="kpi-sub" id="subBanRate">封禁率: -</div>
+    <div class="kpi">
+      <div class="kpi-label">人工复核队列</div>
+      <div class="kpi-value" style="color:var(--accent-purple)" id="valHuman">-</div>
+      <div class="kpi-sub" id="subBanRate">-</div>
     </div>
   </div>
 
-  <!-- 推理链路 -->
   <div class="section">
     <div class="section-header">
       <span class="section-title">推理链路</span>
-      <span class="section-badge" id="latencyBadge">延迟: -</span>
+      <span class="section-badge" id="latencyBadge">平均延迟: -</span>
     </div>
     <div class="pipeline">
       <div class="pipe-node active"><div class="pipe-node-title">IM 后端</div><div class="pipe-node-sub">gRPC / HTTP</div></div>
       <span class="pipe-arrow">→</span>
-      <div class="pipe-node active"><div class="pipe-node-title">证据聚合</div><div class="pipe-node-sub">聊天 + 行为 + 场景</div></div>
+      <div class="pipe-node active"><div class="pipe-node-title">证据聚合</div><div class="pipe-node-sub">聊天+行为+场景</div></div>
       <span class="pipe-arrow">→</span>
-      <div class="pipe-node active"><div class="pipe-node-title">Prompt 渲染</div><div class="pipe-node-sub">Rubric + 策略表</div></div>
+      <div class="pipe-node active"><div class="pipe-node-title">Prompt 渲染</div><div class="pipe-node-sub">Rubric+策略表</div></div>
       <span class="pipe-arrow">→</span>
       <div class="pipe-node active"><div class="pipe-node-title">LLM 推理</div><div class="pipe-node-sub">vLLM · TP=4</div></div>
       <span class="pipe-arrow">→</span>
-      <div class="pipe-node active"><div class="pipe-node-title">后处理</div><div class="pipe-node-sub">校验 + 纠错</div></div>
+      <div class="pipe-node active"><div class="pipe-node-title">后处理</div><div class="pipe-node-sub">校验+纠错+兜底</div></div>
       <span class="pipe-arrow">→</span>
-      <div class="pipe-node active"><div class="pipe-node-title">策略路由</div><div class="pipe-node-sub">自动 / 人审</div></div>
+      <div class="pipe-node active"><div class="pipe-node-title">策略路由</div><div class="pipe-node-sub">自动/人审/封禁</div></div>
       <span class="pipe-arrow">→</span>
-      <div class="pipe-node active"><div class="pipe-node-title">监控告警</div><div class="pipe-node-sub">日志 + 指标</div></div>
+      <div class="pipe-node active"><div class="pipe-node-title">审计监控</div><div class="pipe-node-sub">日志+指标+告警</div></div>
     </div>
   </div>
 
   <div class="grid-2">
-    <!-- 实时审核列表 -->
     <div class="section">
       <div class="section-header">
         <span class="section-title">实时审核结果</span>
         <span class="section-badge" id="liveBadge">实时</span>
       </div>
       <table class="table">
-        <thead>
-          <tr>
-            <th>工单 ID</th>
-            <th>风险</th>
-            <th>主题</th>
-            <th>处置</th>
-            <th>路由</th>
-            <th>延迟</th>
-          </tr>
-        </thead>
-        <tbody id="resultTable">
-          <tr><td colspan="6" style="text-align:center; color:var(--text-secondary);">等待审核数据...</td></tr>
-        </tbody>
+        <thead><tr><th>时间</th><th>工单</th><th>风险</th><th>主题</th><th>处置</th><th>路由</th><th>延迟</th></tr></thead>
+        <tbody id="resultTable"><tr><td colspan="7" style="text-align:center;color:var(--text-secondary);padding:32px;">等待审核数据...</td></tr></tbody>
       </table>
     </div>
 
-    <!-- 处置分布 -->
     <div class="section">
       <div class="section-header">
-        <span class="section-title">处置分布 (实时累计)</span>
+        <span class="section-title">处置分布趋势</span>
         <span class="section-badge" id="distBadge">-</span>
       </div>
-      <div class="bar-chart" id="barChart"></div>
-      <div style="display:flex; gap:16px; margin-top:12px; font-size:11px;">
-        <span><span style="display:inline-block;width:8px;height:8px;background:var(--accent-green);border-radius:2px;margin-right:4px;"></span>忽略 (<span id="ignoreRate">-</span>)</span>
-        <span><span style="display:inline-block;width:8px;height:8px;background:var(--accent-orange);border-radius:2px;margin-right:4px;"></span>警告+限号 (<span id="warnLimitRate">-</span>)</span>
-        <span><span style="display:inline-block;width:8px;height:8px;background:var(--accent-red);border-radius:2px;margin-right:4px;"></span>封禁 (<span id="banRate">-</span>)</span>
+      <div class="chart-container" id="chart"></div>
+      <div class="chart-time-labels"><span id="chartTimeStart">-</span><span>实时</span></div>
+      <div style="display:flex;gap:20px;margin-top:12px;font-size:11px;color:var(--text-secondary);">
+        <span><span style="display:inline-block;width:10px;height:10px;background:#86efac;border-radius:3px;margin-right:5px;vertical-align:middle;"></span>忽略 <b id="rateIgnore">-</b></span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#fcd34d;border-radius:3px;margin-right:5px;vertical-align:middle;"></span>警告+限号 <b id="rateWarn">-</b></span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#fca5a5;border-radius:3px;margin-right:5px;vertical-align:middle;"></span>封禁 <b id="rateBan">-</b></span>
       </div>
     </div>
   </div>
 
   <div class="grid-3">
-    <!-- 模型性能 -->
     <div class="section">
       <div class="section-header">
-        <span class="section-title">模型性能指标</span>
-        <span class="section-badge">离线评测</span>
+        <span class="section-title">模型性能 (离线评测)</span>
+        <span class="section-badge">1024样本</span>
       </div>
-      <div class="metric-bar-container">
-        <div class="metric-bar-header"><span class="metric-bar-label">违规判定准确率</span><span class="metric-bar-value">82.1%</span></div>
-        <div class="metric-bar"><div class="metric-bar-fill" style="width:82.1%; background:var(--accent-blue)"></div></div>
-      </div>
-      <div class="metric-bar-container">
-        <div class="metric-bar-header"><span class="metric-bar-label">风险等级 macro-F1</span><span class="metric-bar-value">75.6%</span></div>
-        <div class="metric-bar"><div class="metric-bar-fill" style="width:75.6%; background:var(--accent-purple)"></div></div>
-      </div>
-      <div class="metric-bar-container">
-        <div class="metric-bar-header"><span class="metric-bar-label">处置建议 macro-F1</span><span class="metric-bar-value">73.2%</span></div>
-        <div class="metric-bar"><div class="metric-bar-fill" style="width:73.2%; background:var(--accent-green)"></div></div>
-      </div>
-      <div class="metric-bar-container">
-        <div class="metric-bar-header"><span class="metric-bar-label">封禁误报率</span><span class="metric-bar-value" style="color:var(--accent-green)">2.6%</span></div>
-        <div class="metric-bar"><div class="metric-bar-fill" style="width:2.6%; background:var(--accent-red)"></div></div>
+      <div class="metric-bar-container"><div class="metric-bar-header"><span class="metric-bar-label">违规判定准确率</span><span class="metric-bar-value">82.1%</span></div><div class="metric-bar"><div class="metric-bar-fill" style="width:82.1%;background:var(--accent-blue)"></div></div></div>
+      <div class="metric-bar-container"><div class="metric-bar-header"><span class="metric-bar-label">风险等级 macro-F1</span><span class="metric-bar-value">75.6%</span></div><div class="metric-bar"><div class="metric-bar-fill" style="width:75.6%;background:var(--accent-purple)"></div></div></div>
+      <div class="metric-bar-container"><div class="metric-bar-header"><span class="metric-bar-label">处置建议 macro-F1</span><span class="metric-bar-value">73.2%</span></div><div class="metric-bar"><div class="metric-bar-fill" style="width:73.2%;background:var(--accent-green)"></div></div></div>
+      <div class="metric-bar-container"><div class="metric-bar-header"><span class="metric-bar-label">封禁误报率 (FPR)</span><span class="metric-bar-value" style="color:var(--accent-green)">2.6%</span></div><div class="metric-bar"><div class="metric-bar-fill" style="width:2.6%;background:var(--accent-red)"></div></div></div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--text-secondary);">
+        对比基线 (Qwen3.6-plus): 准确率+3.2pp · 风险F1+17.2pp · 处置F1+6.7pp
       </div>
     </div>
 
-    <!-- 质量守卫 -->
     <div class="section">
       <div class="section-header">
         <span class="section-title">质量守卫</span>
         <span class="section-badge" id="guardBadge">检测中</span>
       </div>
-      <div id="guardList">
-        <div class="alert-item pass"><span>⏳</span><span>等待数据积累...</span></div>
-      </div>
+      <div id="guardList"><div class="alert-item pass"><span>⏳</span><span>等待数据积累 (≥10条)...</span></div></div>
     </div>
 
-    <!-- 系统信息 -->
     <div class="section">
-      <div class="section-header">
-        <span class="section-title">系统信息</span>
-      </div>
+      <div class="section-header"><span class="section-title">系统信息</span></div>
       <table class="table">
         <tbody>
-          <tr><td style="color:var(--text-secondary)">模型</td><td id="sysModel">-</td></tr>
+          <tr><td style="color:var(--text-secondary);width:90px;">推理模式</td><td id="sysModel">-</td></tr>
           <tr><td style="color:var(--text-secondary)">运行时间</td><td id="sysUptime">-</td></tr>
-          <tr><td style="color:var(--text-secondary)">数据源</td><td id="sysSource">模拟器</td></tr>
-          <tr><td style="color:var(--text-secondary)">刷新间隔</td><td>2 秒</td></tr>
+          <tr><td style="color:var(--text-secondary)">数据源</td><td>模拟器 (simulator.py)</td></tr>
+          <tr><td style="color:var(--text-secondary)">刷新频率</td><td>2 秒</td></tr>
           <tr><td style="color:var(--text-secondary)">后端地址</td><td id="sysEndpoint">-</td></tr>
         </tbody>
       </table>
     </div>
   </div>
-
 </div>
 
 <script>
-const API_BASE = window.location.port ? `http://${window.location.hostname}:8000` : 'http://127.0.0.1:8000';
-let lastTotal = 0;
-let barHistory = [];
+const API_BASE = 'http://127.0.0.1:8000';
+let prevTotal = 0;
+let chartData = []; // [{ignore, warn, ban, ts}]
 
-function riskTag(level) {
-  const map = { high_risk: ['高风险','tag-high'], mid_risk: ['中风险','tag-mid'], low_risk: ['低风险','tag-low'] };
-  const [text, cls] = map[level] || ['未知','tag-low'];
-  return `<span class="tag ${cls}">${text}</span>`;
-}
+function riskTag(l){const m={high_risk:['高风险','tag-high'],mid_risk:['中风险','tag-mid'],low_risk:['低风险','tag-low']};const[t,c]=m[l]||['未知','tag-low'];return `<span class="tag ${c}">${t}</span>`}
+function handleTag(h){const m={ban_account:['封禁','tag-ban'],limit_account:['限号','tag-limit'],warning:['警告','tag-warning'],ignore:['忽略','tag-ignore']};const[t,c]=m[h]||[h,''];return `<span class="tag ${c}">${t}</span>`}
+function routeTag(r){const m={human_review_required:['人工复核','tag-human'],auto_close:['自动关闭','tag-auto'],auto_action:['自动执行','tag-auto'],policy_action:['策略执行','tag-auto'],fallback_or_review:['兜底复核','tag-human']};const[t,c]=m[r]||[r,''];return `<span class="tag ${c}">${t}</span>`}
+function fmtTime(s){if(s<60)return s+'秒';if(s<3600)return Math.floor(s/60)+'分'+s%60+'秒';return Math.floor(s/3600)+'时'+Math.floor(s%3600/60)+'分'}
 
-function handlingTag(h) {
-  const map = { ban_account: ['封禁','tag-ban'], limit_account: ['限号','tag-limit'], warning: ['警告','tag-warning'], ignore: ['忽略','tag-ignore'] };
-  const [text, cls] = map[h] || [h,'tag-low'];
-  return `<span class="tag ${cls}">${text}</span>`;
-}
+async function refresh(){
+  try{
+    const r=await fetch(API_BASE+'/dashboard/data');
+    if(!r.ok)throw new Error(r.status);
+    const d=await r.json();
 
-function routeTag(r) {
-  const map = { human_review_required: ['人工复核','tag-human'], auto_close: ['自动关闭','tag-auto'], auto_action: ['自动执行','tag-auto'], policy_action: ['策略执行','tag-auto'], fallback_or_review: ['兜底复核','tag-human'] };
-  const [text, cls] = map[r] || [r,'tag-auto'];
-  return `<span class="tag ${cls}">${text}</span>`;
-}
+    document.getElementById('statusDot').className='status-dot';
+    document.getElementById('statusText').textContent='系统正常';
+    document.getElementById('connectBanner').className='connect-banner';
 
-function formatUptime(seconds) {
-  if (seconds < 60) return `${seconds}秒`;
-  if (seconds < 3600) return `${Math.floor(seconds/60)}分${seconds%60}秒`;
-  return `${Math.floor(seconds/3600)}时${Math.floor((seconds%3600)/60)}分`;
-}
+    const c=d.counters, total=c.requests_total;
+    const violation=c.ban_total+c.limit_total+c.warning_total;
 
-async function fetchData() {
-  try {
-    const resp = await fetch(`${API_BASE}/dashboard/data`);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data = await resp.json();
+    document.getElementById('valTotal').textContent=total.toLocaleString();
+    const qps=total>0?Math.round(total/Math.max(d.uptime_seconds,1)*60):0;
+    document.getElementById('subThroughput').textContent=`吞吐: ${qps} 条/分钟`;
 
-    // 连接状态
-    document.getElementById('statusDot').className = 'status-dot';
-    document.getElementById('statusText').textContent = '系统正常';
-    document.getElementById('connectStatus').className = 'connect-status';
+    document.getElementById('valViolation').textContent=violation.toLocaleString();
+    document.getElementById('subViolation').textContent=`封禁 ${c.ban_total} · 限号 ${c.limit_total} · 警告 ${c.warning_total}`;
 
-    const c = data.counters;
-    const total = c.requests_total;
-    const violation = c.ban_total + c.limit_total + c.warning_total;
-
-    // KPI
-    document.getElementById('valTotal').textContent = total.toLocaleString();
-    document.getElementById('subTotal').textContent = `处理速率: ${total > 0 ? Math.round(total / Math.max(data.uptime_seconds, 1) * 60) : 0} 条/分钟`;
-    document.getElementById('valViolation').textContent = violation.toLocaleString();
-    document.getElementById('subViolation').textContent = `封禁: ${c.ban_total} · 限号: ${c.limit_total} · 警告: ${c.warning_total}`;
-    document.getElementById('valSafe').textContent = c.ignore_total.toLocaleString();
-    document.getElementById('valHuman').textContent = c.human_review_total.toLocaleString();
-    document.getElementById('subBanRate').textContent = `封禁率: ${total > 0 ? (c.ban_total / total * 100).toFixed(1) : 0}%`;
-
-    // 闪烁效果
-    if (total > lastTotal) {
-      document.getElementById('kpiTotal').classList.add('flash');
-      setTimeout(() => document.getElementById('kpiTotal').classList.remove('flash'), 500);
+    document.getElementById('valSafe').textContent=c.ignore_total.toLocaleString();
+    if(total>0){
+      const safeRate=(c.ignore_total/total*100).toFixed(1);
+      document.getElementById('trendSafe').textContent=`${safeRate}% 安全率`;
+      document.getElementById('trendSafe').className=`kpi-trend ${parseFloat(safeRate)>70?'trend-good':'trend-bad'}`;
     }
-    lastTotal = total;
+
+    document.getElementById('valHuman').textContent=c.human_review_total.toLocaleString();
+    const banRate=total>0?(c.ban_total/total*100).toFixed(1):'0.0';
+    document.getElementById('subBanRate').textContent=`封禁率: ${banRate}% (阈值<12%)`;
 
     // 延迟
-    if (data.recent.length > 0) {
-      const avgLatency = data.recent.reduce((s, r) => s + (r.latency_ms || 0), 0) / data.recent.length;
-      document.getElementById('latencyBadge').textContent = `平均延迟: ${avgLatency.toFixed(0)}ms`;
+    if(d.recent.length>0){
+      const avg=d.recent.reduce((s,x)=>s+(x.latency_ms||0),0)/d.recent.length;
+      document.getElementById('latencyBadge').textContent=`平均延迟: ${avg.toFixed(0)}ms`;
     }
 
-    // 实时列表
-    const tbody = document.getElementById('resultTable');
-    if (data.recent.length > 0) {
-      tbody.innerHTML = data.recent.slice(0, 12).map((r, i) => `
-        <tr class="${i === 0 ? 'new-row' : ''}">
-          <td style="font-family:monospace;font-size:10px;">${r.ticket_id.slice(-18)}</td>
-          <td>${riskTag(r.risk_level)}</td>
-          <td style="font-size:11px;">${r.topic}</td>
-          <td>${handlingTag(r.handling_suggestion)}</td>
-          <td>${routeTag(r.route)}</td>
-          <td style="font-size:11px;color:var(--text-secondary)">${r.latency_ms}ms</td>
-        </tr>
-      `).join('');
+    // 列表
+    if(d.recent.length>0){
+      document.getElementById('resultTable').innerHTML=d.recent.slice(0,10).map((x,i)=>`
+        <tr class="${i===0&&total>prevTotal?'new-row':''}">
+          <td style="font-size:11px;color:var(--text-secondary)">${x.timestamp?x.timestamp.slice(11):'-'}</td>
+          <td style="font-family:monospace;font-size:10px;">${x.ticket_id.slice(-10)}</td>
+          <td>${riskTag(x.risk_level)}</td>
+          <td style="font-size:12px;">${x.topic}</td>
+          <td>${handleTag(x.handling_suggestion)}</td>
+          <td>${routeTag(x.route)}</td>
+          <td style="font-size:11px;color:var(--text-secondary)">${x.latency_ms}ms</td>
+        </tr>`).join('');
     }
 
-    // 分布比例
-    if (total > 0) {
-      const ignoreR = (c.ignore_total / total * 100).toFixed(1);
-      const wlR = ((c.warning_total + c.limit_total) / total * 100).toFixed(1);
-      const banR = (c.ban_total / total * 100).toFixed(1);
-      document.getElementById('ignoreRate').textContent = `${ignoreR}%`;
-      document.getElementById('warnLimitRate').textContent = `${wlR}%`;
-      document.getElementById('banRate').textContent = `${banR}%`;
-      document.getElementById('distBadge').textContent = `共 ${total} 条`;
+    // 图表数据
+    if(total>prevTotal){
+      const newIgnore=c.ignore_total-(chartData.length>0?chartData[chartData.length-1]._ci:0);
+      const newWarn=(c.warning_total+c.limit_total)-(chartData.length>0?chartData[chartData.length-1]._cw:0);
+      const newBan=c.ban_total-(chartData.length>0?chartData[chartData.length-1]._cb:0);
+      chartData.push({ignore:Math.max(newIgnore,0),warn:Math.max(newWarn,0),ban:Math.max(newBan,0),_ci:c.ignore_total,_cw:c.warning_total+c.limit_total,_cb:c.ban_total});
+      if(chartData.length>40)chartData.shift();
+    }
+    renderChart();
 
-      // 柱状图
-      barHistory.push({ ignore: c.ignore_total, warn: c.warning_total + c.limit_total, ban: c.ban_total });
-      if (barHistory.length > 30) barHistory.shift();
-      const chart = document.getElementById('barChart');
-      const maxVal = Math.max(...barHistory.map(b => b.ignore + b.warn + b.ban), 1);
-      chart.innerHTML = barHistory.map(b => {
-        const t = b.ignore + b.warn + b.ban;
-        return `<div style="flex:1;display:flex;flex-direction:column-reverse;height:100%;gap:1px;">
-          <div class="bar bar-green" style="height:${b.ignore/maxVal*100}%"></div>
-          <div class="bar bar-orange" style="height:${b.warn/maxVal*100}%"></div>
-          <div class="bar bar-red" style="height:${b.ban/maxVal*100}%"></div>
-        </div>`;
-      }).join('');
+    // 比例
+    if(total>0){
+      document.getElementById('rateIgnore').textContent=(c.ignore_total/total*100).toFixed(1)+'%';
+      document.getElementById('rateWarn').textContent=((c.warning_total+c.limit_total)/total*100).toFixed(1)+'%';
+      document.getElementById('rateBan').textContent=(c.ban_total/total*100).toFixed(1)+'%';
+      document.getElementById('distBadge').textContent=`共 ${total} 条`;
     }
 
     // 质量守卫
-    if (total >= 5) {
-      const banRateVal = c.ban_total / total;
-      const parseErrVal = c.parse_non_ok_total / total;
-      const guards = [
-        { name: `封禁率 = ${(banRateVal*100).toFixed(1)}%`, pass: banRateVal < 0.12, threshold: '阈值: <12%' },
-        { name: `解析错误率 = ${(parseErrVal*100).toFixed(1)}%`, pass: parseErrVal < 0.05, threshold: '阈值: <5%' },
-        { name: `违规率 = ${(violation/total*100).toFixed(1)}%`, pass: violation/total < 0.5, threshold: '阈值: <50%' },
+    if(total>=10){
+      const br=c.ban_total/total, pr=c.parse_non_ok_total/total, vr=violation/total;
+      const guards=[
+        {name:`封禁率 ${(br*100).toFixed(1)}%`,pass:br<0.12,th:'<12%'},
+        {name:`解析错误率 ${(pr*100).toFixed(1)}%`,pass:pr<0.05,th:'<5%'},
+        {name:`违规率 ${(vr*100).toFixed(1)}%`,pass:vr<0.5,th:'<50%'},
       ];
-      const allPass = guards.every(g => g.pass);
-      document.getElementById('guardBadge').textContent = allPass ? '全部通过' : '存在告警';
-      document.getElementById('guardBadge').style.background = allPass ? 'rgba(81,207,102,0.12)' : 'rgba(255,107,107,0.12)';
-      document.getElementById('guardBadge').style.color = allPass ? 'var(--accent-green)' : 'var(--accent-red)';
-      document.getElementById('guardList').innerHTML = guards.map(g =>
-        `<div class="alert-item ${g.pass ? 'pass' : 'critical'}"><span>${g.pass ? '✓' : '✗'}</span><span>${g.name} (${g.threshold})</span></div>`
-      ).join('');
+      const ok=guards.every(g=>g.pass);
+      document.getElementById('guardBadge').textContent=ok?'全部通过':'告警';
+      document.getElementById('guardBadge').style.background=ok?'#ecfdf5':'#fef2f2';
+      document.getElementById('guardBadge').style.color=ok?'var(--accent-green)':'var(--accent-red)';
+      document.getElementById('guardList').innerHTML=guards.map(g=>`<div class="alert-item ${g.pass?'pass':'critical'}"><span>${g.pass?'✓':'✗'}</span><span>${g.name} (阈值: ${g.th})</span></div>`).join('');
     }
 
-    // 系统信息
-    document.getElementById('sysModel').textContent = data.model_mode === 'checkpoint' ? 'Qwen3.5-27B-SFT' : 'HeuristicJudge (演示模式)';
-    document.getElementById('modelInfo').textContent = `模型: ${data.model_mode === 'checkpoint' ? 'Qwen3.5-27B' : '启发式规则'}`;
-    document.getElementById('sysUptime').textContent = formatUptime(data.uptime_seconds);
-    document.getElementById('uptimeInfo').textContent = `运行: ${formatUptime(data.uptime_seconds)}`;
-    document.getElementById('sysEndpoint').textContent = API_BASE;
+    // 系统
+    document.getElementById('sysModel').textContent=d.model_mode==='checkpoint'?'Qwen3.5-27B-SFT (GPU)':'HeuristicJudge (规则引擎)';
+    document.getElementById('modelInfo').textContent=d.model_mode==='checkpoint'?'Qwen3.5-27B':'规则引擎模式';
+    document.getElementById('sysUptime').textContent=fmtTime(d.uptime_seconds);
+    document.getElementById('uptimeInfo').textContent='运行 '+fmtTime(d.uptime_seconds);
+    document.getElementById('sysEndpoint').textContent=API_BASE;
 
-  } catch (err) {
-    document.getElementById('statusDot').className = 'status-dot offline';
-    document.getElementById('statusText').textContent = '连接断开';
-    const cs = document.getElementById('connectStatus');
-    cs.className = 'connect-status show error';
-    cs.textContent = `无法连接后端服务 (${API_BASE})。请确保已启动: im-guard serve --port 8000`;
+    prevTotal=total;
+  }catch(e){
+    document.getElementById('statusDot').className='status-dot offline';
+    document.getElementById('statusText').textContent='连接断开';
+    const b=document.getElementById('connectBanner');
+    b.className='connect-banner show';
+    b.textContent=`无法连接后端 (${API_BASE})，请确认已执行: make serve`;
   }
 }
 
-// 每 2 秒刷新
-fetchData();
-setInterval(fetchData, 2000);
+function renderChart(){
+  const el=document.getElementById('chart');
+  if(chartData.length===0){el.innerHTML='<div style="width:100%;text-align:center;color:var(--text-secondary);font-size:12px;padding:40px 0;">等待数据...</div>';return;}
+  const maxH=Math.max(...chartData.map(d=>d.ignore+d.warn+d.ban),1);
+  el.innerHTML=chartData.map(d=>{
+    const t=d.ignore+d.warn+d.ban||1;
+    const hI=(d.ignore/maxH*130);
+    const hW=(d.warn/maxH*130);
+    const hB=(d.ban/maxH*130);
+    return `<div class="chart-col"><div class="chart-segment seg-red" style="height:${hB}px"></div><div class="chart-segment seg-orange" style="height:${hW}px"></div><div class="chart-segment seg-green" style="height:${hI}px"></div></div>`;
+  }).join('');
+}
+
+refresh();
+setInterval(refresh,2000);
 </script>
 </body>
 </html>
