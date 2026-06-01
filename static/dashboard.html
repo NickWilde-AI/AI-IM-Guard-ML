@@ -198,6 +198,37 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica
     </div>
   </div>
 
+  <!-- 主题分布 + 延迟分位数 -->
+  <div class="grid-2">
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">违规主题分布</span>
+        <span class="section-badge" id="topicBadge">-</span>
+      </div>
+      <div id="topicList" style="font-size:12px;color:var(--text-secondary);">等待数据...</div>
+    </div>
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">推理延迟分位数</span>
+        <span class="section-badge" id="latP99Badge">-</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;text-align:center;" id="latencyGrid">
+        <div><div style="font-size:20px;font-weight:700;color:var(--accent-blue)" id="latAvg">-</div><div style="font-size:10px;color:var(--text-secondary)">平均</div></div>
+        <div><div style="font-size:20px;font-weight:700;" id="latP50">-</div><div style="font-size:10px;color:var(--text-secondary)">P50</div></div>
+        <div><div style="font-size:20px;font-weight:700;color:var(--accent-orange)" id="latP95">-</div><div style="font-size:10px;color:var(--text-secondary)">P95</div></div>
+        <div><div style="font-size:20px;font-weight:700;color:var(--accent-red)" id="latP99">-</div><div style="font-size:10px;color:var(--text-secondary)">P99</div></div>
+      </div>
+      <div style="margin-top:16px;">
+        <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;background:#f1f5f9;">
+          <div id="latBar50" style="background:#4ade80;transition:width 0.6s;"></div>
+          <div id="latBar95" style="background:#fbbf24;transition:width 0.6s;"></div>
+          <div id="latBar99" style="background:#f87171;transition:width 0.6s;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:var(--text-secondary);"><span>0ms</span><span>500ms</span></div>
+      </div>
+    </div>
+  </div>
+
   <div class="grid-3">
     <div class="section">
       <div class="section-header">
@@ -347,6 +378,39 @@ async function refresh(){
     document.getElementById('sysUptime').textContent=fmtTime(d.uptime_seconds);
     document.getElementById('uptimeInfo').textContent='运行 '+fmtTime(d.uptime_seconds);
     document.getElementById('sysEndpoint').textContent=API_BASE;
+
+    // 主题分布
+    if(d.topic_distribution && Object.keys(d.topic_distribution).length>0){
+      const topics=d.topic_distribution;
+      const topicTotal=Object.values(topics).reduce((a,b)=>a+b,0);
+      const colors=['#2563eb','#dc2626','#d97706','#16a34a','#7c3aed','#0891b2','#be185d','#4f46e5'];
+      document.getElementById('topicBadge').textContent=`${Object.keys(topics).length} 个主题`;
+      document.getElementById('topicList').innerHTML=Object.entries(topics).slice(0,8).map(([name,count],i)=>{
+        const pct=(count/topicTotal*100).toFixed(1);
+        const color=colors[i%colors.length];
+        return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span style="width:70px;font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</span>
+          <div style="flex:1;height:18px;background:#f1f5f9;border-radius:4px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:${color};opacity:0.7;border-radius:4px;transition:width 0.6s;"></div>
+          </div>
+          <span style="width:50px;text-align:right;font-size:11px;font-weight:600;color:${color};">${pct}%</span>
+        </div>`;
+      }).join('');
+    }
+
+    // 延迟分位数
+    if(d.latency && d.latency.avg){
+      const lat=d.latency;
+      document.getElementById('latAvg').textContent=lat.avg+'ms';
+      document.getElementById('latP50').textContent=lat.p50+'ms';
+      document.getElementById('latP95').textContent=lat.p95+'ms';
+      document.getElementById('latP99').textContent=lat.p99+'ms';
+      document.getElementById('latP99Badge').textContent=`P99: ${lat.p99}ms`;
+      // 延迟条(相对500ms)
+      document.getElementById('latBar50').style.width=Math.min(lat.p50/500*100,100)+'%';
+      document.getElementById('latBar95').style.width=Math.min((lat.p95-lat.p50)/500*100,100)+'%';
+      document.getElementById('latBar99').style.width=Math.min((lat.p99-lat.p95)/500*100,100)+'%';
+    }
 
     prevTotal=total;
   }catch(e){

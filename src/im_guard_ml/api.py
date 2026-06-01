@@ -38,6 +38,8 @@ def create_app(config_path: str = "configs/default.yaml", model_path: str | None
         "parse_non_ok_total": 0,
         "human_review_total": 0,
     }
+    topic_counts: dict[str, int] = {}
+    latency_history: deque = deque(maxlen=200)
     recent_results: deque = deque(maxlen=50)
     start_time = time.time()
 
@@ -71,6 +73,11 @@ def create_app(config_path: str = "configs/default.yaml", model_path: str | None
         if pred.get("parse_status") not in (None, "ok"):
             counters["parse_non_ok_total"] += 1
 
+        # 追踪主题分布和延迟
+        topic = pred.get("topic", "无主题")
+        topic_counts[topic] = topic_counts.get(topic, 0) + 1
+        latency_history.append(latency_ms)
+
         result = {**versions.to_dict(), **pred, "route": route, "final_action": final_action}
 
         recent_results.appendleft({
@@ -93,6 +100,18 @@ def create_app(config_path: str = "configs/default.yaml", model_path: str | None
         parse_err_rate = counters["parse_non_ok_total"] / total if total > 0 else 0
         uptime_seconds = int(time.time() - start_time)
 
+        # 延迟分位数
+        latency_stats = {}
+        if latency_history:
+            sorted_lat = sorted(latency_history)
+            n = len(sorted_lat)
+            latency_stats = {
+                "p50": sorted_lat[int(n * 0.5)],
+                "p95": sorted_lat[min(int(n * 0.95), n - 1)],
+                "p99": sorted_lat[min(int(n * 0.99), n - 1)],
+                "avg": round(sum(sorted_lat) / n, 1),
+            }
+
         return {
             "counters": counters,
             "rates": {
@@ -100,6 +119,8 @@ def create_app(config_path: str = "configs/default.yaml", model_path: str | None
                 "parse_error_rate": round(parse_err_rate, 4),
                 "violation_rate": round((counters["ban_total"] + counters["limit_total"] + counters["warning_total"]) / total, 4) if total > 0 else 0,
             },
+            "topic_distribution": dict(sorted(topic_counts.items(), key=lambda x: -x[1])),
+            "latency": latency_stats,
             "recent": list(recent_results)[:20],
             "uptime_seconds": uptime_seconds,
             "model_mode": "checkpoint" if model_path else "heuristic",
