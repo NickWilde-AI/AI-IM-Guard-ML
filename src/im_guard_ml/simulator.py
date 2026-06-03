@@ -604,12 +604,13 @@ async def _async_run(host: str, port: int, interval: float, concurrency: int):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="IM Guard 数据模拟器 v2.0")
+    parser = argparse.ArgumentParser(description="IM Guard 数据模拟器 v3.0")
     parser.add_argument("--host", default="127.0.0.1", help="服务地址")
     parser.add_argument("--port", type=int, default=8000, help="服务端口")
-    parser.add_argument("--interval", type=float, default=1.0, help="基础间隔(秒)，实际会受时间波动影响")
+    parser.add_argument("--interval", type=float, default=0.3, help="基础间隔(秒)")
+    parser.add_argument("--concurrency", type=int, default=10, help="并发请求数")
     args = parser.parse_args()
-    run_simulator(args.host, args.port, args.interval)
+    run_simulator(args.host, args.port, args.interval, args.concurrency)
 
 
 if __name__ == "__main__":
