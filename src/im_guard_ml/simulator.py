@@ -120,25 +120,41 @@ TRADE_CHATS = [
     "我给你个链接，从那边下单便宜一半",
 ]
 
-# 赌博引流
+# 赌博引流（每条含博彩/押注/走势特征词）
 GAMBLE_CHATS = [
-    "有个棋牌平台很赚钱，要不要一起玩？",
-    "我在一个平台押注，赢了不少，带你。",
-    "加群看走势图，跟着买稳赚不赔。",
-    "兄弟玩不玩？昨天赢了三千多",
-    "有个pg平台，充100送100，老稳了",
-    "来我群里看分析师的计划，命中率90%以上",
-    "那个BC平台还在搞活动，冲一波？",
-    "有个jc群，每天跟单就行，上周赚了一万",
+    "有个棋牌平台很赚钱，押注就能回血，要不要一起玩？",
+    "我在那个BC平台押注，赢了不少，带你上车",
+    "加群看走势图，跟着计划买，稳赢不亏",
+    "兄弟玩不玩？昨天下注赢了三千多",
+    "有个pg平台，充100送100，提现秒到",
+    "来我群里看分析师的走势计划，命中率90%以上",
+    "那个博彩平台还在搞活动，押一波时时彩？",
+    "有个jc群，每天跟单就行，上周回血一万",
+    "六合彩有内部号，跟我下注稳赚",
+    "输了别慌，加我带你回血翻本",
 ]
 
-# 色情引流
+# 辱骂攻击
+ABUSE_CHATS = [
+    "你是不是傻逼？这都不懂",
+    "滚吧你这个废物，别来我直播间了",
+    "脑残吧你，说话都说不清楚",
+    "你长得也太丑了吧，怪不得没人看",
+    "垃圾主播，浪费我时间，去死吧",
+    "贱人就是矫情，恶心死了",
+    "智障玩意儿，赶紧滚蛋",
+]
+
+# 色情引流（每条均含可识别色情特征词）
 PORN_CHATS = [
-    "想看pian吗？加我另一个号",
-    "有兴趣看那种视频吗？私密的那种",
-    "加我telegram，有好东西分享",
-    "想找小jj聊天吗？加我推荐",
-    "有需要的私我，各种资源都有",
+    "想看pian吗？加我另一个号，私密的那种",
+    "有兴趣看那种视频吗？全套资源都有",
+    "想约pao吗？我同城，价格私聊",
+    "想找人裸聊吗？加我推荐个平台",
+    "有需要的私我，那种照片应有尽有",
+    "福利视频要不要？加我发你预览",
+    "涩涩的资源管够，懂的来",
+    "一夜情有兴趣吗？就在你附近",
 ]
 
 # 灰区 / 边界案例（看起来像违规但其实正常，或看起来正常但可能有风险）
@@ -151,6 +167,78 @@ GRAY_ZONE_CHATS = [
     "你那个优惠券还有吗？能不能分享一下",
     "这个链接你看一下，是我做的小程序",
     "咱们换个地方聊吧，这里不方便",
+]
+
+# 辱骂攻击
+ABUSE_CHATS = [
+    "你是不是傻逼？这都不懂",
+    "滚吧你这个废物，别来我直播间了",
+    "脑残吧你，说话都说不清楚",
+    "你长得也太丑了吧，怪不得没人看",
+    "垃圾主播，浪费我时间",
+]
+
+# 政治敏感（模拟占位，每条含"政治敏感/敏感"特征词，不含真实敏感内容）
+POLITICS_CHATS = [
+    "你看了那个政治敏感的帖子了吗？帮我转发一下",
+    "这个事情涉及政治敏感话题，我们私下传",
+    "有个敏感事件的内幕，想不想看？别外传",
+    "这种敏感话题别在直播间说，加我私聊",
+    "帮忙扩散一下这条，内容比较敏感",
+]
+
+# 自伤诱导（每条含自伤/轻生特征词）
+SELFHARM_CHATS = [
+    "活着真没意思，不想活了",
+    "你知道怎么自残吗？我想试试",
+    "感觉这个世界不需要我了，想结束生命",
+    "最近总有跳楼的念头，控制不住",
+    "教教我割腕会不会很疼，我想解脱",
+]
+
+# 未成年保护（身份试探 + 诱导）
+MINOR_CHATS = [
+    "妹妹今年上几年级呀？看起来好小",
+    "你是不是还在上学？看着像初中生",
+    "你今年多大了？声音听着像高中生",
+    "放学了吗？姐姐给你买礼物好不好",
+    "你才14岁呀，那加个微信偷偷聊别让家长知道",
+    "用你的压岁钱给我刷个礼物呗，回头加倍还你",
+    "穿校服的样子真好看，能单独发我看看吗",
+    "小朋友别告诉爸妈，咱俩的小秘密",
+]
+
+# 版权侵犯（盗版/破解/账号共享）
+COPYRIGHT_CHATS = [
+    "这部剧我有盗版资源，免费看，要的私我",
+    "破解版软件需要吗？所有付费功能都解锁",
+    "原价办会员太贵了，拼车会员了解一下，五个人一个号",
+    "我这有全套付费课程的搬运，白菜价出",
+    "网盘资源共享群，最新电影院线片都有",
+    "账号共享车队招人，平摊会员费",
+    "需要破解软件的加我，各种付费工具都有",
+    "这个直播间的录播我翻录了，要的发你",
+]
+
+# 虚假信息（虚假中奖/冒充官方/谣言）
+FAKEINFO_CHATS = [
+    "恭喜你中奖了！点击链接领取iPhone，名额有限",
+    "我是平台官方客服，你的账号异常需要验证",
+    "官方通知：充值活动充100返500，仅限今天",
+    "你听说了吗？那个主播其实是骗子，赶紧扩散",
+    "内部消息，明天平台要大改规则，先囤点钻",
+    "冒充不了别人，我就是官方的，加我领补偿",
+    "扫码领取你的专属奖励，错过没有了",
+]
+
+# 违禁品交易（毒品/管制器具/黑灰产，模拟占位）
+CONTRABAND_CHATS = [
+    "需要那个吗？麻古、冰糖都有，懂的私聊",
+    "仿真枪、管制刀具出货，要的加我",
+    "听话水、迷药了解一下，效果好",
+    "黑灰产工具、卡料批发，走加密渠道",
+    "有非法教程，教你怎么搞钱，违禁那种",
+    "实弹和弹药能搞到，价格私聊别问太多",
 ]
 
 # ===== 行为异常模板库 =====
@@ -176,6 +264,22 @@ ABNORMAL_TEMPLATES = {
     "porn": [
         {"abnormal_type": "色情引流", "abnormal_description": "发送疑似色情内容引导，涉及外部平台跳转。"},
         {"abnormal_type": "色情引流", "abnormal_description": "私聊中发送疑似不雅图片/视频链接，已向{count}人发送。"},
+    ],
+    "minor": [
+        {"abnormal_type": "未成年身份风险", "abnormal_description": "对方账号实名年龄显示未满18岁，存在身份试探话术。"},
+        {"abnormal_type": "诱导私聊", "abnormal_description": "诱导疑似未成年用户转外部联系方式，近期{count}次类似行为。"},
+    ],
+    "copyright": [
+        {"abnormal_type": "盗版资源分发", "abnormal_description": "消息含网盘/外链，疑似盗版资源，已向{count}人发送。"},
+        {"abnormal_type": "账号共享售卖", "abnormal_description": "近7天{count}次提及拼车会员/账号共享，疑似侵权牟利。"},
+    ],
+    "fakeinfo": [
+        {"abnormal_type": "虚假信息群发", "abnormal_description": "向{count}个用户群发含中奖/领取链接的相似消息。"},
+        {"abnormal_type": "冒充官方", "abnormal_description": "昵称或话术冒充平台官方客服，诱导验证/充值。"},
+    ],
+    "contraband": [
+        {"abnormal_type": "违禁品交易", "abnormal_description": "消息含违禁品关键词与外部加密联系方式，疑似交易引流。"},
+        {"abnormal_type": "违禁品交易", "abnormal_description": "近期向{count}人投递违禁品售卖话术，走外部渠道结算。"},
     ],
 }
 
@@ -282,8 +386,12 @@ def _multi_round_chat(primary: str, category: str) -> list[dict]:
             "brush": ["好的，老价格，包你满意。", "没问题，今晚给你安排。", "行，这次冲前三保底。"],
             "fraud": ["好的加了，什么项目？", "真的假的？靠谱吗", "行，我看看怎么回事"],
             "trade": ["好，那你发收款码吧", "行，支付宝还是微信？", "了解，那走外部吧"],
-            "gamble": ["听起来不错，怎么玩？", "赢了怎么提现？", "行，你拉我进群"],
-            "porn": ["什么资源？", "私密的？", "加了"],
+            "gamble": ["听起来不错，怎么玩？", "赢了怎么提现？", "行，你拉我进群看走势"],
+            "porn": ["什么资源？", "私密的？多少钱", "加了，发我看看"],
+            "minor": ["我才上初二啦", "你别告诉我妈妈哦", "好呀，加你微信"],
+            "copyright": ["怎么拼车？多少钱", "盗版清晰吗", "发我网盘链接"],
+            "fakeinfo": ["真的中奖了？怎么领", "你是官方客服吗", "链接安全吗"],
+            "contraband": ["怎么交易？", "走什么渠道", "价格多少，靠谱吗"],
         }
         if category in replies:
             reply = random.choice(replies[category])
@@ -306,31 +414,36 @@ def generate_case(event: str | None = None) -> dict:
     elif event == "porn_burst":
         category = "porn" if random.random() < 0.5 else "safe"
     else:
-        # 正常分布
-        r = random.random()
-        if r < 0.78:
-            category = "safe"
-        elif r < 0.88:
-            category = "brush"
-        elif r < 0.93:
-            category = "fraud"
-        elif r < 0.96:
-            category = "trade"
-        elif r < 0.98:
-            category = "gamble"
-        elif r < 0.99:
-            category = "porn"
-        else:
-            category = "gray"
+        # 正常分布：真实生产环境绝大多数为正常对话，违规为长尾。
+        # 各违规类按平台真实治理强度排序（代刷/诈骗/赌博为高发，违禁/自伤极低频）。
+        category = random.choices(
+            [
+                "safe", "gray", "brush", "fraud", "gamble", "trade",
+                "porn", "abuse", "fakeinfo", "copyright", "politics",
+                "minor", "selfharm", "contraband",
+            ],
+            weights=[
+                62, 6, 6, 5, 4, 3.5,
+                3, 3, 2, 2, 1.2,
+                1, 0.6, 0.6,
+            ],
+        )[0]
 
     # 选择话术
     chat_map = {
         "safe": SAFE_CHATS,
         "brush": BRUSH_CHATS,
         "fraud": FRAUD_CHATS,
-        "trade": TRADE_CHATS,
         "gamble": GAMBLE_CHATS,
+        "trade": TRADE_CHATS,
         "porn": PORN_CHATS,
+        "abuse": ABUSE_CHATS,
+        "politics": POLITICS_CHATS,
+        "selfharm": SELFHARM_CHATS,
+        "minor": MINOR_CHATS,
+        "copyright": COPYRIGHT_CHATS,
+        "fakeinfo": FAKEINFO_CHATS,
+        "contraband": CONTRABAND_CHATS,
         "gray": GRAY_ZONE_CHATS,
     }
     chat = random.choice(chat_map[category])
@@ -368,12 +481,24 @@ def generate_case(event: str | None = None) -> dict:
         "trade": random.choice(["中", "低"]),
         "gamble": "无",
         "porn": "无",
+        "abuse": random.choice(["无", "低"]),
+        "politics": random.choice(["低", "中"]),
+        "selfharm": random.choice(["中", "高"]),
+        "minor": random.choice(["无", "低"]),
+        "copyright": random.choice(["低", "无"]),
+        "fakeinfo": "无",
+        "contraband": "无",
         "gray": random.choice(["中", "低", "无"]),
     }
     intimacy = intimacy_map[category]
 
-    # 登录行为
-    login = "异地登录。" if category in ("fraud", "gamble", "porn") or (category == "brush" and random.random() < 0.6) else "本机登录。"
+    # 登录行为：引流/黑产类多为异地批量号
+    login = (
+        "异地登录。"
+        if category in ("fraud", "gamble", "porn", "fakeinfo", "contraband", "copyright")
+        or (category == "brush" and random.random() < 0.6)
+        else "本机登录。"
+    )
 
     # 行为异常
     abnormals = []

@@ -383,13 +383,13 @@ async function refresh(){
     if(d.topic_distribution && Object.keys(d.topic_distribution).length>0){
       const topics=d.topic_distribution;
       const topicTotal=Object.values(topics).reduce((a,b)=>a+b,0);
-      const colors=['#2563eb','#dc2626','#d97706','#16a34a','#7c3aed','#0891b2','#be185d','#4f46e5'];
+      const colors=['#2563eb','#dc2626','#d97706','#16a34a','#7c3aed','#0891b2','#be185d','#4f46e5','#ca8a04','#0d9488','#9333ea','#e11d48','#64748b'];
       document.getElementById('topicBadge').textContent=`${Object.keys(topics).length} 个主题`;
-      document.getElementById('topicList').innerHTML=Object.entries(topics).slice(0,8).map(([name,count],i)=>{
+      document.getElementById('topicList').innerHTML=Object.entries(topics).slice(0,13).map(([name,count],i)=>{
         const pct=(count/topicTotal*100).toFixed(1);
         const color=colors[i%colors.length];
         return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-          <span style="width:70px;font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</span>
+          <span style="width:84px;font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${name}">${name}</span>
           <div style="flex:1;height:18px;background:#f1f5f9;border-radius:4px;overflow:hidden;">
             <div style="height:100%;width:${pct}%;background:${color};opacity:0.7;border-radius:4px;transition:width 0.6s;"></div>
           </div>

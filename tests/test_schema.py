@@ -28,13 +28,13 @@ class TestRiskLevel:
 
 class TestTopics:
     def test_topic_count(self):
-        assert len(TOPICS) == 12  # 11 violation types + 无主题
+        assert len(TOPICS) == 13  # 12 violation types + 无主题
 
     def test_no_topic_included(self):
         assert "无主题" in TOPICS
 
     def test_core_topics_present(self):
-        expected = ["代刷/包榜", "色情诱导", "诈骗引流", "私下交易"]
+        expected = ["代刷/包榜", "色情诱导", "诈骗引流", "赌博引流", "私下交易"]
         for topic in expected:
             assert topic in TOPICS
 
