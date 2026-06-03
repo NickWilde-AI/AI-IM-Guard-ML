@@ -94,6 +94,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica
 .connect-banner { padding: 10px 32px; background: #fef2f2; border-bottom: 1px solid #fecaca; font-size: 12px; color: var(--accent-red); text-align: center; display: none; }
 .connect-banner.show { display: block; }
 
+.window-tabs { display: flex; gap: 6px; }
+.window-tab { padding: 4px 14px; border-radius: 16px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); transition: all 0.15s; }
+.window-tab:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+.window-tab.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
+
+.topic-row { margin-bottom: 12px; }
+.topic-row-header { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; cursor: pointer; }
+.topic-row-name { width: 90px; font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+.topic-row-bar-wrap { flex: 1; height: 16px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+.topic-row-bar { height: 100%; border-radius: 4px; transition: width 0.6s; }
+.topic-row-pct { width: 42px; text-align: right; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+.topic-detail { display: none; padding: 6px 10px 6px 100px; }
+.topic-detail.open { display: block; }
+.topic-mini-label { font-size: 10px; color: var(--text-secondary); margin-bottom: 3px; }
+.topic-mini-bar { display: flex; height: 10px; border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+
 @media (max-width: 1024px) { .grid-4 { grid-template-columns: repeat(2,1fr); } .grid-2,.grid-3 { grid-template-columns: 1fr; } }
 @media (max-width: 640px) { .grid-4 { grid-template-columns: 1fr; } .main { padding: 16px; } }
 </style>
@@ -198,11 +214,24 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica
     </div>
   </div>
 
+  <!-- 时间窗口切换 -->
+  <div class="section" style="padding: 12px 24px; margin-bottom: 24px;">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <span style="font-size:12px;color:var(--text-secondary);font-weight:500;">时间窗口</span>
+      <div class="window-tabs">
+        <div class="window-tab active" data-w="all" onclick="setWindow('all')">全量</div>
+        <div class="window-tab" data-w="1h" onclick="setWindow('1h')">近1小时</div>
+        <div class="window-tab" data-w="5m" onclick="setWindow('5m')">近5分钟</div>
+      </div>
+      <span style="font-size:11px;color:var(--text-secondary);" id="windowHint">显示全部数据</span>
+    </div>
+  </div>
+
   <!-- 主题分布 + 延迟分位数 -->
   <div class="grid-2">
     <div class="section">
       <div class="section-header">
-        <span class="section-title">违规主题分布</span>
+        <span class="section-title">违规主题分布（点击展开下钻）</span>
         <span class="section-badge" id="topicBadge">-</span>
       </div>
       <div id="topicList" style="font-size:12px;color:var(--text-secondary);">等待数据...</div>
@@ -270,7 +299,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica
 <script>
 const API_BASE = 'http://127.0.0.1:8000';
 let prevTotal = 0;
-let chartData = []; // [{ignore, warn, ban}] per tick (incremental)
+let chartData = [];
+let currentWindow = 'all';
+
+function setWindow(w) {
+  currentWindow = w;
+  document.querySelectorAll('.window-tab').forEach(t => t.classList.toggle('active', t.dataset.w === w));
+  const hints = {all:'显示全部数据', '1h':'近1小时滑动窗口', '5m':'近5分钟滑动窗口'};
+  document.getElementById('windowHint').textContent = hints[w] || '';
+  chartData = [];
+  prevTotal = 0;
+  refresh();
+}
 
 function riskTag(l){const m={high_risk:['高风险','tag-high'],mid_risk:['中风险','tag-mid'],low_risk:['低风险','tag-low']};const[t,c]=m[l]||['未知','tag-low'];return `<span class="tag ${c}">${t}</span>`}
 function handleTag(h){const m={ban_account:['封禁','tag-ban'],limit_account:['限号','tag-limit'],warning:['警告','tag-warning'],ignore:['忽略','tag-ignore']};const[t,c]=m[h]||[h,''];return `<span class="tag ${c}">${t}</span>`}
@@ -279,7 +319,7 @@ function fmtTime(s){if(s<60)return s+'秒';if(s<3600)return Math.floor(s/60)+'�
 
 async function refresh(){
   try{
-    const r=await fetch(API_BASE+'/dashboard/data');
+    const r=await fetch(API_BASE+'/dashboard/data?window='+currentWindow);
     if(!r.ok)throw new Error(r.status);
     const d=await r.json();
 
@@ -379,21 +419,43 @@ async function refresh(){
     document.getElementById('uptimeInfo').textContent='运行 '+fmtTime(d.uptime_seconds);
     document.getElementById('sysEndpoint').textContent=API_BASE;
 
-    // 主题分布
-    if(d.topic_distribution && Object.keys(d.topic_distribution).length>0){
-      const topics=d.topic_distribution;
-      const topicTotal=Object.values(topics).reduce((a,b)=>a+b,0);
+    // 主题分布（带下钻）
+    if(d.topic_breakdown && Object.keys(d.topic_breakdown).length>0){
+      const breakdown=d.topic_breakdown;
+      const topicTotal=Object.values(breakdown).reduce((a,b)=>a+b['count'],0);
       const colors=['#2563eb','#dc2626','#d97706','#16a34a','#7c3aed','#0891b2','#be185d','#4f46e5','#ca8a04','#0d9488','#9333ea','#e11d48','#64748b'];
-      document.getElementById('topicBadge').textContent=`${Object.keys(topics).length} 个主题`;
-      document.getElementById('topicList').innerHTML=Object.entries(topics).slice(0,13).map(([name,count],i)=>{
-        const pct=(count/topicTotal*100).toFixed(1);
+      document.getElementById('topicBadge').textContent=`${Object.keys(breakdown).length} 个主题`;
+      document.getElementById('topicList').innerHTML=Object.entries(breakdown).slice(0,13).map(([name,stat],i)=>{
+        const count=stat.count, pct=(count/topicTotal*100).toFixed(1);
         const color=colors[i%colors.length];
-        return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-          <span style="width:84px;font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${name}">${name}</span>
-          <div style="flex:1;height:18px;background:#f1f5f9;border-radius:4px;overflow:hidden;">
-            <div style="height:100%;width:${pct}%;background:${color};opacity:0.7;border-radius:4px;transition:width 0.6s;"></div>
+        const r=stat.risk, h=stat.handling;
+        const rTotal=r.low_risk+r.mid_risk+r.high_risk||1;
+        const hTotal=h.ignore+h.warning+h.limit_account+h.ban_account||1;
+        const uid='td-'+name.replace(/[^a-z0-9]/gi,'');
+        return `<div class="topic-row">
+          <div class="topic-row-header" onclick="toggleDetail('${uid}')">
+            <span class="topic-row-name" title="${name}">${name}</span>
+            <div class="topic-row-bar-wrap"><div class="topic-row-bar" style="width:${pct}%;background:${color};opacity:0.7;"></div></div>
+            <span class="topic-row-pct" style="color:${color}">${pct}%</span>
+            <span style="font-size:10px;color:var(--text-secondary);flex-shrink:0;">▸</span>
           </div>
-          <span style="width:50px;text-align:right;font-size:11px;font-weight:600;color:${color};">${pct}%</span>
+          <div class="topic-detail" id="${uid}">
+            <div class="topic-mini-label">风险分布 (low/mid/high)</div>
+            <div class="topic-mini-bar">
+              <div style="width:${(r.low_risk/rTotal*100).toFixed(1)}%;background:#4ade80;" title="低风险 ${r.low_risk}"></div>
+              <div style="width:${(r.mid_risk/rTotal*100).toFixed(1)}%;background:#fbbf24;" title="中风险 ${r.mid_risk}"></div>
+              <div style="width:${(r.high_risk/rTotal*100).toFixed(1)}%;background:#f87171;" title="高风险 ${r.high_risk}"></div>
+            </div>
+            <div style="font-size:10px;color:var(--text-secondary);margin-bottom:6px;">低 ${r.low_risk} · 中 ${r.mid_risk} · 高 ${r.high_risk}</div>
+            <div class="topic-mini-label">处置分布 (忽略/警告/限号/封禁)</div>
+            <div class="topic-mini-bar">
+              <div style="width:${(h.ignore/hTotal*100).toFixed(1)}%;background:#4ade80;" title="忽略 ${h.ignore}"></div>
+              <div style="width:${(h.warning/hTotal*100).toFixed(1)}%;background:#fbbf24;" title="警告 ${h.warning}"></div>
+              <div style="width:${(h.limit_account/hTotal*100).toFixed(1)}%;background:#fb923c;" title="限号 ${h.limit_account}"></div>
+              <div style="width:${(h.ban_account/hTotal*100).toFixed(1)}%;background:#f87171;" title="封禁 ${h.ban_account}"></div>
+            </div>
+            <div style="font-size:10px;color:var(--text-secondary);">忽略 ${h.ignore} · 警告 ${h.warning} · 限号 ${h.limit_account} · 封禁 ${h.ban_account}</div>
+          </div>
         </div>`;
       }).join('');
     }
@@ -503,6 +565,14 @@ function renderAreaChart(){
   document.getElementById('areaBan').setAttribute('d', pathBan+warnRev+'Z');
   document.getElementById('lineBan').setAttribute('points', ptsBanLine.trim());
   document.getElementById('chartLabel').textContent=`峰值: ${maxT}`;
+}
+
+function toggleDetail(uid){
+  const el=document.getElementById(uid);
+  if(!el)return;
+  el.classList.toggle('open');
+  const arrow=el.previousElementSibling.querySelector('span:last-child');
+  if(arrow)arrow.textContent=el.classList.contains('open')?'▾':'▸';
 }
 
 refresh();
