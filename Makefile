@@ -4,6 +4,7 @@ CONFIG ?= configs/default.yaml
 SAMPLE ?= data/samples/sample_cases.jsonl
 OUT_DIR ?= outputs
 PORT ?= 8000
+API_MODEL ?= qwen-plus
 SIM_INTERVAL ?= 1
 
 .PHONY: summary predict predict-route eval monitor alerts audit-data build-demo compile clean serve simulator demo test
@@ -45,6 +46,9 @@ clean:
 
 serve:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) serve --port $(PORT)
+
+serve-api:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) serve --port $(PORT) --api --api-model $(API_MODEL)
 
 simulator:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.simulator --port $(PORT) --interval $(SIM_INTERVAL)

@@ -36,15 +36,22 @@ def _compute_counters(events: list[dict]) -> dict:
     return c
 
 
-def create_app(config_path: str = "configs/default.yaml", model_path: str | None = None):
+def create_app(config_path: str = "configs/default.yaml", model_path: str | None = None, *, api: bool = False, api_model: str = "qwen-plus"):
     from fastapi import FastAPI, Query, Response
     from fastapi.middleware.cors import CORSMiddleware
     from fastapi.staticfiles import StaticFiles
 
     cfg = load_yaml(config_path)
     rubrics = cfg.get("rubrics", {})
-    judge = TransformersJudge(model_path, rubrics) if model_path else HeuristicJudge(rubrics)
+    if api:
+        from .inference import APIJudge
+        judge = APIJudge(rubrics, model=api_model)
+    elif model_path:
+        judge = TransformersJudge(model_path, rubrics)
+    else:
+        judge = HeuristicJudge(rubrics)
     versions = version_info_from_config(cfg, model_path)
+    mode = "api" if api else ("checkpoint" if model_path else "heuristic-demo")
     app = FastAPI(title="AI IM Guard ML", version="0.1.0")
 
     app.add_middleware(
@@ -62,7 +69,7 @@ def create_app(config_path: str = "configs/default.yaml", model_path: str | None
 
     @app.get("/health")
     def health() -> dict[str, str]:
-        return {"status": "ok", "mode": "checkpoint" if model_path else "heuristic-demo"}
+        return {"status": "ok", "mode": mode}
 
     @app.post("/judge")
     def judge_case(case: dict) -> dict:

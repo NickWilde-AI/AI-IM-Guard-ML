@@ -35,10 +35,10 @@ def build_self_predictor(
     """Build a predictor from the current-round fine-tuned Judge checkpoint."""
     from .inference import TransformersJudge
 
-    judge = TransformersJudge(model_path, device=device)
+    judge = TransformersJudge(model_path, rubrics)
 
     def predict(case: dict[str, Any]) -> dict[str, Any]:
-        return judge.predict(case, rubrics)
+        return judge.predict(case)
 
     return predict
 

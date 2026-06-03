@@ -48,6 +48,8 @@ def main(argv: list[str] | None = None) -> int:
 
     p_serve = sub.add_parser("serve")
     p_serve.add_argument("--model-path")
+    p_serve.add_argument("--api", action="store_true", help="Use API-based judge (requires QWEN_API_KEY env)")
+    p_serve.add_argument("--api-model", default="qwen-plus", help="API model name (default: qwen-plus)")
     p_serve.add_argument("--host", default="127.0.0.1")
     p_serve.add_argument("--port", default=8000, type=int)
 
@@ -144,7 +146,7 @@ def main(argv: list[str] | None = None) -> int:
 
         from .api import create_app
 
-        uvicorn.run(create_app(args.config, args.model_path), host=args.host, port=args.port)
+        uvicorn.run(create_app(args.config, args.model_path, api=getattr(args, 'api', False), api_model=getattr(args, 'api_model', 'qwen-plus')), host=args.host, port=args.port)
         return 0
     print("unknown command", file=sys.stderr)
     return 2
