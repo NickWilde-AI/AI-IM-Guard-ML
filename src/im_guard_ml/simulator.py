@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 import math
 import random
 import time
@@ -538,60 +539,68 @@ def generate_case(event: str | None = None) -> dict:
     }
 
 
-def run_simulator(host: str = "127.0.0.1", port: int = 8000, interval: float = 1.0):
-    """持续向审核服务发送模拟请求，带时间波动和突发事件。"""
+def run_simulator(host: str = "127.0.0.1", port: int = 8000, interval: float = 1.0, concurrency: int = 5):
+    """持续向审核服务发送模拟请求，异步并发，适配 API 模式高延迟。"""
+    asyncio.run(_async_run(host, port, interval, concurrency))
+
+
+async def _async_run(host: str, port: int, interval: float, concurrency: int):
+    import httpx as _httpx
+
     url = f"http://{host}:{port}/judge"
     event_sim = EventSimulator()
+    counter = {"n": 0}
 
     print(f"╔══════════════════════════════════════════╗")
-    print(f"║   IM Guard 数据模拟器 v2.0               ║")
+    print(f"║   IM Guard 数据模拟器 v3.0 (async)       ║")
     print(f"╠══════════════════════════════════════════╣")
     print(f"║  目标: {url:<32} ║")
-    print(f"║  基础间隔: {interval:.1f}s (带时间波动)            ║")
-    print(f"║  突发事件: 随机触发                       ║")
+    print(f"║  并发数: {concurrency}  基础间隔: {interval:.1f}s              ║")
     print(f"╚══════════════════════════════════════════╝")
-    print()
-    print("按 Ctrl+C 停止")
-    print("-" * 60)
+    print("按 Ctrl+C 停止\n" + "-" * 60)
 
-    count = 0
-    with httpx.Client(timeout=10.0) as client:
-        while True:
-            event = event_sim.tick()
-            case = generate_case(event)
+    sem = asyncio.Semaphore(concurrency)
+
+    async def send_one(case: dict, event: str | None):
+        async with sem:
             try:
-                resp = client.post(url, json=case)
-                resp.raise_for_status()
-                result = resp.json()
-                count += 1
-
+                async with _httpx.AsyncClient(timeout=30.0) as client:
+                    resp = await client.post(url, json=case)
+                    resp.raise_for_status()
+                    result = resp.json()
+                counter["n"] += 1
                 risk = result.get("risk_level", "?")
                 topic = result.get("topic", "?")
                 action = result.get("handling_suggestion", "?")
                 route = result.get("route", "?")
-
-                # 彩色输出
                 risk_icon = {"high_risk": "🔴", "mid_risk": "🟡", "low_risk": "🟢"}.get(risk, "⚪")
                 event_tag = f" ⚡{event}" if event else ""
-
                 print(
-                    f"[{count:04d}] {risk_icon} {case['ticket_id'][-15:]} │ "
-                    f"{risk:<10} {topic:<10} {action:<14} {route}{event_tag}"
+                    f"[{counter['n']:04d}] {risk_icon} {case['ticket_id'][-15:]} │ "
+                    f"{risk:<10} {topic:<12} {action:<14} {route}{event_tag}"
                 )
-            except httpx.HTTPError as e:
-                print(f"[错误] 请求失败: {e}")
-            except KeyboardInterrupt:
-                break
+            except Exception as e:
+                print(f"[错误] {e}")
 
-            # 动态间隔 = 基础间隔 / 时间因子 + 随机抖动
+    tasks = set()
+    try:
+        while True:
+            event = event_sim.tick()
+            case = generate_case(event)
+            task = asyncio.create_task(send_one(case, event))
+            tasks.add(task)
+            task.add_done_callback(tasks.discard)
+
             factor = _time_factor()
-            jitter = random.uniform(-0.3, 0.3)
-            actual_interval = max(0.2, (interval / factor) + jitter)
-            time.sleep(actual_interval)
+            jitter = random.uniform(-0.2, 0.2)
+            actual_interval = max(0.1, (interval / factor) + jitter)
+            await asyncio.sleep(actual_interval)
+    except KeyboardInterrupt:
+        pass
 
-    print(f"\n{'='*60}")
-    print(f"模拟器停止 | 共发送 {count} 条请求")
-    print(f"{'='*60}")
+    if tasks:
+        await asyncio.gather(*tasks, return_exceptions=True)
+    print(f"\n{'='*60}\n模拟器停止 | 共发送 {counter['n']} 条请求\n{'='*60}")
 
 
 def main():
