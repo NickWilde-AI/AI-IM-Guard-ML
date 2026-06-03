@@ -431,7 +431,7 @@ async function refresh(){
         const r=stat.risk, h=stat.handling;
         const rTotal=r.low_risk+r.mid_risk+r.high_risk||1;
         const hTotal=h.ignore+h.warning+h.limit_account+h.ban_account||1;
-        const uid='td-'+name.replace(/[^a-z0-9]/gi,'');
+        const uid='td-'+i;
         return `<div class="topic-row">
           <div class="topic-row-header" onclick="toggleDetail('${uid}')">
             <span class="topic-row-name" title="${name}">${name}</span>
