@@ -61,12 +61,19 @@ def create_app(config_path: str = "configs/default.yaml", model_path: str | None
         allow_headers=["*"],
     )
 
-    # 全量事件流（带时间戳），支持滑动窗口，保留最近 7200 条（约 2 小时）
+    # 全량事件流（带时间戳），支持滑动窗口，保留最近 7200 条（约 2 小时）
     event_log: deque = deque(maxlen=7200)
     latency_history: deque = deque(maxlen=200)
     recent_results: deque = deque(maxlen=50)
     start_time = time.time()
-    sim_config = {"interval": 0.3, "concurrency": 10}  # 模拟器速率控制
+    sim_config = {"interval": 0.3, "concurrency": 10}
+
+    # 全局累计计数器（不受 event_log maxlen 限制）
+    global_counters = {
+        "requests_total": 0, "ban_total": 0, "limit_total": 0,
+        "warning_total": 0, "ignore_total": 0, "parse_non_ok_total": 0,
+        "human_review_total": 0,
+    }
 
     @app.get("/simulator/config")
     def get_sim_config() -> dict:
@@ -112,6 +119,15 @@ def create_app(config_path: str = "configs/default.yaml", model_path: str | None
         latency_history.append(latency_ms)
         recent_results.appendleft(event)
 
+        # 全局累计（不受 event_log maxlen 限制）
+        global_counters["requests_total"] += 1
+        if handling == "ban_account": global_counters["ban_total"] += 1
+        elif handling == "limit_account": global_counters["limit_total"] += 1
+        elif handling == "warning": global_counters["warning_total"] += 1
+        else: global_counters["ignore_total"] += 1
+        if route == "human_review_required": global_counters["human_review_total"] += 1
+        if parse_non_ok: global_counters["parse_non_ok_total"] += 1
+
         return {**versions.to_dict(), **pred, "route": route, "final_action": final_action}
 
     @app.get("/dashboard/data")
@@ -120,10 +136,10 @@ def create_app(config_path: str = "configs/default.yaml", model_path: str | None
         window_secs = _WINDOW_SECONDS.get(window or "all")
         if window_secs is not None:
             events = [e for e in event_log if now - e["ts"] <= window_secs]
+            counters = _compute_counters(events)
         else:
             events = list(event_log)
-
-        counters = _compute_counters(events)
+            counters = dict(global_counters)  # 全量用独立累计，不受 maxlen 限制
         total = counters["requests_total"]
         ban_rate = counters["ban_total"] / total if total > 0 else 0
         parse_err_rate = counters["parse_non_ok_total"] / total if total > 0 else 0
