@@ -316,7 +316,12 @@ body.dark .alert-item.critical{background:#450a0a;border-color:#991b1b;}
 </div>
 <script>
 const API_BASE='http://127.0.0.1:8000';
-let prevTotal=0,chartData=[],currentWindow='all',sparkData=[],recentCache=[];
+let prevTotal=0,currentWindow='all',sparkData=[],recentCache=[];
+
+// 从 sessionStorage 恢复图表数据
+let chartData=[];
+try{const s=sessionStorage.getItem('chartData');if(s)chartData=JSON.parse(s);}catch(e){}
+function saveChartData(){try{sessionStorage.setItem('chartData',JSON.stringify(chartData.slice(-60)));}catch(e){}}
 
 // 暗色模式
 function toggleDark(){
@@ -388,9 +393,7 @@ function detectEvent(c,total){
     banner.className='event-banner show brush';
     clearTimeout(eventTimer);eventTimer=setTimeout(()=>banner.className='event-banner',8000);
   } else if(c.human_review_total/total>0.2){
-    banner.textContent='🔍 人工复核队列积压 — 高风险工单大量进入复核通道';
-    banner.className='event-banner show fraud';
-    clearTimeout(eventTimer);eventTimer=setTimeout(()=>banner.className='event-banner',6000);
+    // 人工复核队列积压提示已移除
   }
   lastBanRate=br;
 }
@@ -533,6 +536,7 @@ async function refresh(){
       const prev=chartData.length>0?chartData[chartData.length-1]._cum:{i:0,w:0,b:0};
       chartData.push({ignore:c.ignore_total-prev.i,warn:(c.warning_total+c.limit_total)-prev.w,ban:c.ban_total-prev.b,_cum:{i:c.ignore_total,w:c.warning_total+c.limit_total,b:c.ban_total}});
       if(chartData.length>60)chartData.shift();
+      saveChartData();
     }
 
     // 比例条
