@@ -66,6 +66,17 @@ def create_app(config_path: str = "configs/default.yaml", model_path: str | None
     latency_history: deque = deque(maxlen=200)
     recent_results: deque = deque(maxlen=50)
     start_time = time.time()
+    sim_config = {"interval": 0.3, "concurrency": 10}  # 模拟器速率控制
+
+    @app.get("/simulator/config")
+    def get_sim_config() -> dict:
+        return sim_config
+
+    @app.post("/simulator/speed")
+    def set_sim_speed(body: dict) -> dict:
+        interval = float(body.get("interval", sim_config["interval"]))
+        sim_config["interval"] = round(max(0.05, min(5.0, interval)), 2)
+        return sim_config
 
     @app.get("/health")
     def health() -> dict[str, str]:
