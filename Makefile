@@ -1,4 +1,4 @@
-PYTHON ?= python3
+PYTHON ?= $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 PYTHONPATH := src
 CONFIG ?= configs/default.yaml
 SAMPLE ?= data/samples/sample_cases.jsonl
