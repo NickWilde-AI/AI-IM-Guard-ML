@@ -55,6 +55,27 @@ A/B 不比较单一 accuracy，而比较业务可用性：
 
 候选模型只有在主指标提升且 guardrail 不退化时才能进入下一阶段。
 
+本仓库提供了一个最小可运行的离线 A/B replay 报告，用于比较 control 与 candidate 两份 prediction JSONL：
+
+```bash
+PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml ab-report \
+  --control outputs/control_predictions.jsonl \
+  --candidate outputs/candidate_predictions.jsonl \
+  --out outputs/ab_report.md \
+  --json-out outputs/ab_report.json
+```
+
+报告会按 `ticket_id` 对齐样本，输出：
+
+- `final_judgment_f1`
+- `handling_macro_f1`
+- `ban_account_fpr`
+- `parse_non_ok_rate`
+- `p95_latency_ms`
+- 可选 `human_review_overturn_rate`
+
+如果候选模型主指标没有退化且 guardrail 全部通过，报告会给出 `promote`；如果误封、解析异常或延迟触发阈值，则给出 `hold`。
+
 ## 回滚动作
 
 1. 切回上一稳定模型或规则引擎。

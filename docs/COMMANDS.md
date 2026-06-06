@@ -21,6 +21,7 @@ PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml monitor 
 PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml alerts outputs/demo_routed_predictions.jsonl
 PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml window-alerts outputs/demo_routed_predictions.jsonl --window-size 100 --step-size 50
 PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml drift-report outputs/demo_routed_predictions.jsonl --baseline-pred-jsonl outputs/demo_routed_predictions.jsonl --out outputs/drift_report.json
+PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml ab-report --control outputs/demo_routed_predictions.jsonl --candidate outputs/demo_routed_predictions.jsonl --out outputs/ab_report.md --json-out outputs/ab_report.json
 PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml audit-data data/samples/sample_cases.jsonl
 ```
 
@@ -35,6 +36,7 @@ make monitor
 make alerts
 make window-alerts
 make drift-report
+make ab-report
 make audit-data
 make build-demo
 make download-xguard

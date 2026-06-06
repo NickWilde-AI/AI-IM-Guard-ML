@@ -61,6 +61,7 @@ def test_build_readiness_check_warns_when_only_local_data_missing(tmp_path):
         "docs/COMMANDS.md",
         "docs/POLICY_CHANGELOG.md",
         "docs/LOCAL_ENV_ROOT_CAUSE.md",
+        "src/im_guard_ml/rollout.py",
         "deploy/Dockerfile",
         "deploy/docker-compose.example.yml",
         "deploy/k8s/deployment.yaml",

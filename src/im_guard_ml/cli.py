@@ -37,6 +37,13 @@ def main(argv: list[str] | None = None) -> int:
     p_eval_report.add_argument("--out", default="outputs/offline_eval_report.md")
     p_eval_report.add_argument("--title", default="AI-IM-Guard-ML 离线评测报告")
 
+    p_ab = sub.add_parser("ab-report")
+    p_ab.add_argument("--control", required=True, help="Control prediction JSONL with label/prediction fields.")
+    p_ab.add_argument("--candidate", required=True, help="Candidate prediction JSONL with label/prediction fields.")
+    p_ab.add_argument("--out", default="outputs/ab_report.md")
+    p_ab.add_argument("--json-out", help="Optional machine-readable JSON report path.")
+    p_ab.add_argument("--title", default="AI-IM-Guard-ML A/B 灰度对比报告")
+
     p_delivery = sub.add_parser("delivery-summary")
     p_delivery.add_argument("--out", default="outputs/enterprise_delivery_summary.md")
     p_delivery.add_argument("--project-root", default=".")
@@ -139,6 +146,18 @@ def main(argv: list[str] | None = None) -> int:
         report = build_offline_eval_report(read_jsonl(args.pred_jsonl), title=args.title)
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
         Path(args.out).write_text(report, encoding="utf-8")
+        print(args.out)
+        return 0
+    if args.cmd == "ab-report":
+        from .rollout import build_ab_report, render_ab_report_markdown
+
+        report = build_ab_report(read_jsonl(args.control), read_jsonl(args.candidate), config=cfg)
+        markdown = render_ab_report_markdown(report, title=args.title)
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(markdown, encoding="utf-8")
+        if args.json_out:
+            Path(args.json_out).parent.mkdir(parents=True, exist_ok=True)
+            Path(args.json_out).write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(args.out)
         return 0
     if args.cmd == "delivery-summary":
