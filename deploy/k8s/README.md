@@ -42,6 +42,6 @@ kubectl delete -f deploy/k8s/configmap.yaml
 
 ## 注意
 
-- `secret.example.yaml` 只作模板，真实 token 应由密钥系统注入。
+- `secret.example.yaml` 只作模板，生产化展示优先注入 `IM_GUARD_API_TOKEN_HASHES`，真实 token 应由密钥系统或网关托管。
 - SQLite PVC 适合单服务展示，不适合多副本高并发生产写入；真实生产建议换成 PostgreSQL 或日志平台。
 - 多副本 API 如需共享审计查询，应使用集中存储。

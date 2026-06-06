@@ -63,6 +63,7 @@ def create_app(config_path: str = "configs/default.yaml", model_path: str | None
     auth_config = parse_auth_config(
         os.environ.get("IM_GUARD_API_TOKEN", ""),
         os.environ.get("IM_GUARD_API_TOKENS", ""),
+        os.environ.get("IM_GUARD_API_TOKEN_HASHES", ""),
     )
     audit_log_path = Path(os.environ.get("IM_GUARD_AUDIT_LOG_PATH", "outputs/api_audit_events.jsonl"))
     audit_backend = os.environ.get("IM_GUARD_AUDIT_BACKEND", "jsonl")
@@ -163,7 +164,7 @@ def create_app(config_path: str = "configs/default.yaml", model_path: str | None
             "status": "ready",
             "mode": mode,
             "auth_enabled": auth_config.enabled,
-            "auth_roles": sorted(set(auth_config.token_roles.values())),
+            "auth_roles": sorted(set(auth_config.token_roles.values()) | set(auth_config.token_hash_roles.values())),
             "audit_backend": audit_backend,
             "audit_log_path": str(audit_log_path),
             "max_request_bytes": max_request_bytes,

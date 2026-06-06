@@ -1,3 +1,4 @@
+import hashlib
 import json
 
 from fastapi.testclient import TestClient
@@ -44,6 +45,31 @@ def test_api_role_tokens_enforce_minimal_permissions(monkeypatch, tmp_path):
     assert client.get("/dashboard/data", headers={"Authorization": "Bearer reader-token"}).status_code == 200
     assert client.get("/audit/tickets/rbac-1", headers={"Authorization": "Bearer reader-token"}).status_code == 401
     assert client.get("/audit/tickets/rbac-1", headers={"Authorization": "Bearer audit-token"}).status_code == 200
+
+
+def test_api_accepts_hashed_role_tokens(monkeypatch, tmp_path):
+    token_hash = hashlib.sha256("hashed-writer-token".encode("utf-8")).hexdigest()
+    monkeypatch.delenv("IM_GUARD_API_TOKEN", raising=False)
+    monkeypatch.delenv("IM_GUARD_API_TOKENS", raising=False)
+    monkeypatch.setenv("IM_GUARD_API_TOKEN_HASHES", f"{token_hash}:writer")
+    monkeypatch.setenv("IM_GUARD_AUDIT_LOG_PATH", str(tmp_path / "audit.jsonl"))
+    client = TestClient(create_app())
+
+    denied = client.post(
+        "/judge",
+        headers={"Authorization": "Bearer wrong-token"},
+        json={"ticket_id": "hashed-1"},
+    )
+    accepted = client.post(
+        "/judge",
+        headers={"Authorization": "Bearer hashed-writer-token"},
+        json={"ticket_id": "hashed-1"},
+    )
+    ready = client.get("/ready")
+
+    assert denied.status_code == 401
+    assert accepted.status_code == 200
+    assert ready.json()["auth_roles"] == ["writer"]
 
 
 def test_api_token_success_returns_request_id_and_writes_audit(monkeypatch, tmp_path):

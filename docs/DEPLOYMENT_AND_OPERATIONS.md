@@ -151,7 +151,7 @@ kubectl rollout restart deployment/im-guard-api
 | --- | --- | --- | --- |
 | Python 启动时报中文路径解码错误 | `echo $LANG $LC_ALL` | locale 为 `C` 或 ASCII | 设置 `LANG=en_US.UTF-8`、`LC_ALL=en_US.UTF-8`，详见 `docs/LOCAL_ENV_ROOT_CAUSE.md` |
 | `/ready` 不通过 | 环境变量、审计路径、模型路径 | token/审计路径配置错误，checkpoint 不存在 | 先用启发式 demo 启动，再逐项打开模型和审计配置 |
-| `/judge` 返回 401 | `Authorization` header | 设置了 `IM_GUARD_API_TOKEN` 或 `IM_GUARD_API_TOKENS` | 使用 `Authorization: Bearer <token>`，确认角色有 `write` 权限 |
+| `/judge` 返回 401 | `Authorization` header | 设置了 `IM_GUARD_API_TOKEN`、`IM_GUARD_API_TOKENS` 或 `IM_GUARD_API_TOKEN_HASHES` | 使用 `Authorization: Bearer <token>`，确认角色有 `write` 权限 |
 | `/judge` 返回 413 | 请求大小 | 聊天证据或行为证据过长 | 调整 `IM_GUARD_MAX_REQUEST_BYTES`，生产上游应做证据摘要 |
 | `/judge` 返回 429 | 客户端 IP 请求频率 | 基础限流触发 | 调整 `IM_GUARD_RATE_LIMIT_PER_MINUTE` 或接入网关限流 |
 | 解析失败率升高 | `/metrics`、`window-alerts`、`drift-report` | prompt、模型版本、输出截断变化 | 降级到人审/规则，回滚 prompt 或模型 |
@@ -167,6 +167,7 @@ kubectl rollout restart deployment/im-guard-api
 - `IM_GUARD_MODEL_PATH`：模型路径。
 - `IM_GUARD_API_TOKEN`：可选 Bearer Token；为空时保持本地 demo 兼容，非空时业务接口必须带 `Authorization: Bearer <token>`。
 - `IM_GUARD_API_TOKENS`：可选多 token 角色配置，格式为 `token:role,token2:role2`；角色支持 `admin / writer / reader / auditor`。
+- `IM_GUARD_API_TOKEN_HASHES`：可选多 token 哈希角色配置，格式为 `sha256(token):role,sha256(token2):role2`；生产化展示优先使用，服务端使用常量时间比较校验。
 - `IM_GUARD_CORS_ORIGINS`：允许跨域来源，多个来源用逗号分隔，默认 `*`。
 - `IM_GUARD_AUDIT_BACKEND`：审计后端，支持 `jsonl` 和 `sqlite`；生产化展示建议使用 `sqlite`。
 - `IM_GUARD_AUDIT_LOG_PATH`：API 审计落盘路径，默认 `outputs/api_audit_events.jsonl`；SQLite 示例为 `outputs/api_audit_events.sqlite`。

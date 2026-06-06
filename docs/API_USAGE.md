@@ -13,7 +13,11 @@ PYTHONPATH=src im-guard --config configs/default.yaml serve --port 8000
 开启 token、审计、请求大小限制和限流：
 
 ```bash
-export IM_GUARD_API_TOKEN="replace-with-a-secret"
+export IM_GUARD_API_TOKEN_HASHES="$(python3 - <<'PY'
+import hashlib
+print(hashlib.sha256('replace-with-a-secret'.encode()).hexdigest() + ':admin')
+PY
+)"
 export IM_GUARD_AUDIT_BACKEND=jsonl
 export IM_GUARD_AUDIT_LOG_PATH=outputs/api_audit_events.jsonl
 export IM_GUARD_CORS_ORIGINS="http://127.0.0.1:8000,http://localhost:8000"
@@ -24,7 +28,7 @@ PYTHONPATH=src im-guard --config configs/default.yaml serve --port 8000
 
 ## 鉴权与角色
 
-默认不设置 `IM_GUARD_API_TOKEN` 或 `IM_GUARD_API_TOKENS` 时，接口保持本地 demo 可访问。设置 token 后，业务接口必须带：
+默认不设置 `IM_GUARD_API_TOKEN`、`IM_GUARD_API_TOKENS` 或 `IM_GUARD_API_TOKEN_HASHES` 时，接口保持本地 demo 可访问。设置 token 后，业务接口必须带：
 
 ```text
 Authorization: Bearer <token>
@@ -41,6 +45,14 @@ export IM_GUARD_API_TOKEN="replace-with-a-secret"
 ```bash
 export IM_GUARD_API_TOKENS="writer-token:writer,reader-token:reader,audit-token:auditor"
 ```
+
+生产化展示推荐只在环境变量里保存 SHA-256 token hash，格式为 `sha256(token):role`：
+
+```bash
+export IM_GUARD_API_TOKEN_HASHES="a2b...64位hex...9f:writer,0f3...64位hex...1c:auditor"
+```
+
+服务端会对请求 Bearer token 做 SHA-256 摘要，并用常量时间比较匹配 hash。`IM_GUARD_API_TOKEN` 和 `IM_GUARD_API_TOKENS` 仍保留，用于本地 demo 或临时验证。
 
 | 角色 | 可访问能力 |
 | --- | --- |
@@ -184,7 +196,7 @@ python3 scripts/benchmark_api.py \
 
 ## 生产接入边界
 
-- Bearer token 是展示级鉴权；真实生产应使用网关、密钥轮换、租户隔离和集中权限。
+- Bearer token + SHA-256 hash 配置是生产化展示增强；真实生产仍应使用网关、密钥轮换、租户隔离和集中权限。
 - SQLite 适合单机展示；多实例生产应使用 PostgreSQL、日志平台或审计平台。
 - `/metrics` 提供指标出口；真实告警应接入 Prometheus、日志平台和 on-call 流程。
 - `ban_account` 等强处置应经过人审或策略保护，不应只依赖公开训练数据直接自动执行。

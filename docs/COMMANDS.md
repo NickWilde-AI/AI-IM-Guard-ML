@@ -123,6 +123,16 @@ export IM_GUARD_RATE_LIMIT_PER_MINUTE=120
 im-guard --config configs/default.yaml serve --port 8000
 ```
 
+生产化展示建议改用 SHA-256 token hash，不在环境变量中保存明文 token：
+
+```bash
+export IM_GUARD_API_TOKEN_HASHES="$(python3 - <<'PY'
+import hashlib
+print(hashlib.sha256('replace-with-a-secret'.encode()).hexdigest() + ':admin')
+PY
+)"
+```
+
 ```bash
 curl http://127.0.0.1:8000/health
 curl http://127.0.0.1:8000/ready
@@ -177,6 +187,12 @@ kubectl apply -f deploy/k8s/service.yaml
 
 ```bash
 export IM_GUARD_API_TOKENS="writer-token:writer,reader-token:reader,audit-token:auditor"
+```
+
+多 token hash 角色配置：
+
+```bash
+export IM_GUARD_API_TOKEN_HASHES="<writer-token-64-hex-sha256>:writer,<reader-token-64-hex-sha256>:reader,<audit-token-64-hex-sha256>:auditor"
 ```
 
 ## 本地开发环境
