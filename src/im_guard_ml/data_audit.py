@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from collections import Counter, defaultdict
 from typing import Any
 
@@ -9,6 +10,11 @@ from .schema import validate_label
 
 
 REQUIRED_FIELDS = ["ticket_id", "audit_scene", "chat_evidence_list", "behavior_abnormal_list", "label"]
+PII_PATTERNS = {
+    "email": re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+"),
+    "phone_cn": re.compile(r"(?<!\d)1[3-9]\d{9}(?!\d)"),
+    "id_card_cn": re.compile(r"(?<!\d)\d{17}[\dXx](?!\d)"),
+}
 
 
 def audit_dataset(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -22,6 +28,8 @@ def audit_dataset(rows: list[dict[str, Any]]) -> dict[str, Any]:
     seen_ids: set[str] = set()
     seen_hashes: dict[str, str] = {}
     public_multitask_leaks: list[str] = []
+    pii_counter: Counter[str] = Counter()
+    pii_samples: list[dict[str, Any]] = []
 
     for idx, row in enumerate(rows):
         for field in REQUIRED_FIELDS:
@@ -46,6 +54,12 @@ def audit_dataset(rows: list[dict[str, Any]]) -> dict[str, Any]:
         if row.get("task_type") == "public_binary":
             if label.get("handling_suggestion") not in {"ignore", "warning"}:
                 public_multitask_leaks.append(ticket_id)
+        pii_hits = detect_pii_types(row)
+        if pii_hits:
+            for pii_type in pii_hits:
+                pii_counter[pii_type] += 1
+            if len(pii_samples) < 20:
+                pii_samples.append({"ticket_id": ticket_id, "pii_types": pii_hits})
 
     return {
         "total": len(rows),
@@ -56,6 +70,9 @@ def audit_dataset(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "label_errors_sample": label_errors[:20],
         "public_multitask_leak_count": len(public_multitask_leaks),
         "public_multitask_leaks_sample": public_multitask_leaks[:20],
+        "pii_risk_count": sum(pii_counter.values()),
+        "pii_risk_by_type": dict(sorted(pii_counter.items())),
+        "pii_risk_sample": pii_samples,
         "by_source": dict(sorted(source_counter.items())),
         "by_topic": dict(sorted(topic_counter.items())),
         "by_final_judgment": dict(sorted(judgment_counter.items())),
@@ -79,7 +96,28 @@ def split_leakage_report(train_rows: list[dict[str, Any]], eval_rows: list[dict[
         "payload_overlap_count": len(overlap_hashes),
         "payload_overlap_sample": overlap_hashes[:20],
         "quality_status": "fail" if overlap_ids or overlap_hashes else "pass",
-    }
+}
+
+
+def detect_pii_types(row: dict[str, Any]) -> list[str]:
+    text = "\n".join(_text_fragments(row))
+    return [name for name, pattern in PII_PATTERNS.items() if pattern.search(text)]
+
+
+def _text_fragments(value: Any) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, dict):
+        parts: list[str] = []
+        for item in value.values():
+            parts.extend(_text_fragments(item))
+        return parts
+    if isinstance(value, list):
+        parts: list[str] = []
+        for item in value:
+            parts.extend(_text_fragments(item))
+        return parts
+    return []
 
 
 def _case_hash(row: dict[str, Any]) -> str:
@@ -103,4 +141,3 @@ def _quality_status(
     if missing or duplicate_ids or duplicate_payloads or label_errors or public_multitask_leaks:
         return "fail"
     return "pass"
-

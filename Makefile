@@ -6,8 +6,11 @@ OUT_DIR ?= outputs
 PORT ?= 8000
 API_MODEL ?= qwen-plus
 SIM_INTERVAL ?= 1
+XGUARD_RAW ?= data/external/xguard_train_open_200k.jsonl
+XGUARD_TRAIN ?= data/train/xguard_public_train.jsonl
+XGUARD_SPLITS ?= data/train/xguard_splits
 
-.PHONY: summary predict predict-route eval monitor alerts audit-data build-demo compile clean serve simulator demo test
+.PHONY: summary predict predict-route eval monitor alerts window-alerts drift-report audit-data build-demo download-xguard build-xguard audit-xguard eval-report delivery-summary readiness-check enterprise-check compile clean serve simulator demo test
 
 summary:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) summary $(SAMPLE)
@@ -29,12 +32,39 @@ monitor: predict-route
 alerts: predict-route
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) alerts $(OUT_DIR)/demo_routed_predictions.jsonl
 
+window-alerts: predict-route
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) window-alerts $(OUT_DIR)/demo_routed_predictions.jsonl --window-size 20 --step-size 10
+
+drift-report: predict-route
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) drift-report $(OUT_DIR)/demo_routed_predictions.jsonl --baseline-pred-jsonl $(OUT_DIR)/demo_routed_predictions.jsonl --out $(OUT_DIR)/drift_report.json
+
 audit-data:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) audit-data $(SAMPLE)
 
 build-demo:
 	mkdir -p $(OUT_DIR)
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.build_dataset --internal $(SAMPLE) --out $(OUT_DIR)/built_train.jsonl
+
+download-xguard:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) scripts/download_xguard_dataset.py --out $(XGUARD_RAW)
+
+build-xguard:
+	mkdir -p data/train
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.build_dataset --public-xguard $(XGUARD_RAW) --out $(XGUARD_TRAIN) --split-out-dir $(XGUARD_SPLITS)
+
+audit-xguard:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) audit-data $(XGUARD_TRAIN)
+
+eval-report: predict-route
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) eval-report $(OUT_DIR)/demo_routed_predictions.jsonl --out $(OUT_DIR)/offline_eval_report.md
+
+delivery-summary:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) delivery-summary --project-root . --out $(OUT_DIR)/enterprise_delivery_summary.md
+
+readiness-check:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) readiness-check --project-root . --out $(OUT_DIR)/readiness_check.json
+
+enterprise-check: test compile delivery-summary readiness-check
 
 compile:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m compileall -q src

@@ -4,9 +4,9 @@ __pycache__/
 outputs/
 data/train/
 data/raw/
+data/external/
 *.egg-info/
 .env
 .claude/
 违规审核模型*.pdf
 违规审核模型*.md
-

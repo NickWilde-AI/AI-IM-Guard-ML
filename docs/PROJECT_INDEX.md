@@ -13,37 +13,49 @@
 3. [RUBRIC_AND_LABELING_GUIDE.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/RUBRIC_AND_LABELING_GUIDE.md)
    理解 11 类主题、47 个子主题、low/mid/high 标注逻辑。
 
-4. [MODEL_CARD_AND_EXPERIMENT_REPORT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/MODEL_CARD_AND_EXPERIMENT_REPORT.md)
+4. [HUMAN_REVIEW_AND_ROLLOUT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/HUMAN_REVIEW_AND_ROLLOUT.md)
+   理解人审复核、灰度、A/B 和回滚 guardrail。
+
+5. [MODEL_CARD_AND_EXPERIMENT_REPORT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/MODEL_CARD_AND_EXPERIMENT_REPORT.md)
    记住核心指标、基线、消融和上线红线。
 
-5. [DEPLOYMENT_AND_OPERATIONS.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DEPLOYMENT_AND_OPERATIONS.md)
+6. [TRAINING_AND_EVALUATION.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/TRAINING_AND_EVALUATION.md)
+   理解数据构建、训练、预测、评测报告、drift 和上线前检查。
+
+7. [DEPLOYMENT_AND_OPERATIONS.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DEPLOYMENT_AND_OPERATIONS.md)
    准备部署、灰度、回滚、容量估算相关追问。
 
-6. [DATA_QUALITY_AND_AUDIT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DATA_QUALITY_AND_AUDIT.md)
+8. [API_USAGE.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/API_USAGE.md)
+   理解 API 接口、鉴权、错误码、审计查询和压测入口。
+
+9. [DATA_QUALITY_AND_AUDIT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DATA_QUALITY_AND_AUDIT.md)
    准备数据质量、标签冲突、训练/评测泄漏相关追问。
 
-7. [DEEP_DIVE_QA.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DEEP_DIVE_QA.md)
+10. [DEEP_DIVE_QA.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DEEP_DIVE_QA.md)
    背高频深挖问题的回答结构。
 
-8. [INTERVIEW_PLAYBOOK.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/INTERVIEW_PLAYBOOK.md)
+11. [INTERVIEW_PLAYBOOK.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/INTERVIEW_PLAYBOOK.md)
    最后压缩成 30 秒、2 分钟、5 分钟讲法。
 
-9. [FINAL_INTERVIEW_CHECKLIST.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/FINAL_INTERVIEW_CHECKLIST.md)
+12. [FINAL_INTERVIEW_CHECKLIST.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/FINAL_INTERVIEW_CHECKLIST.md)
    面试前 30 分钟做最终自检。
 
-10. [RESUME_AND_STORYLINE.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/RESUME_AND_STORYLINE.md)
+13. [RESUME_AND_STORYLINE.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/RESUME_AND_STORYLINE.md)
     简历 bullet、STAR 叙事和 1/3/5 分钟讲法。
 
-11. [COMMANDS.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/COMMANDS.md)
+14. [COMMANDS.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/COMMANDS.md)
     常用命令、Makefile 和部署入口。
 
-12. [INCIDENT_RUNBOOK.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/INCIDENT_RUNBOOK.md)
+15. [INCIDENT_RUNBOOK.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/INCIDENT_RUNBOOK.md)
     线上事故止血、排查和复盘。
 
-13. [DELIVERY_REPORT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DELIVERY_REPORT.md)
+16. [SLO_AND_ALERTING.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/SLO_AND_ALERTING.md)
+    SLO、Prometheus 指标和告警规则。
+
+17. [DELIVERY_REPORT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DELIVERY_REPORT.md)
     当前项目交付总清单。
 
-14. [SOURCE_DOC_COVERAGE.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/SOURCE_DOC_COVERAGE.md)
+18. [SOURCE_DOC_COVERAGE.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/SOURCE_DOC_COVERAGE.md)
     原始两份文档内容和当前工程的覆盖关系。
 
 ## 2. 面试必须讲清的 6 件事
@@ -70,6 +82,9 @@
 | `monitoring.py` | 线上预测分布和输入漂移摘要 |
 | `data_audit.py` | 训练数据质量和泄漏审计 |
 | `versioning.py` | 模型/prompt/rubric/后处理版本追踪 |
+| `audit_store.py` | API 审计 JSONL/SQLite 持久化 |
+| `privacy.py` | 输入摘要、PII 检测和脱敏 |
+| `reporting.py` | 离线评测 Markdown 报告、交付摘要、readiness-check |
 | `api.py` | FastAPI 服务 |
 | `cli.py` | 命令行入口 |
 
@@ -78,14 +93,28 @@
 | 文件 | 作用 |
 | --- | --- |
 | `configs/default.yaml` | 默认模型、训练、标签、rubric、版本配置 |
+| `configs/rollout.yaml` | 灰度、A/B 和人审策略示例 |
 | `configs/rubrics.yaml` | 11 类主题的 low/mid/high 细则 |
 | `configs/experiment_results.yaml` | 机器可读实验结果和模型卡摘要 |
 | `data/samples/sample_cases.jsonl` | 可演示样例数据 |
 | `deploy/vllm_serve.sh` | vLLM 服务启动示例 |
 | `deploy/audit_service.env.example` | 审核服务环境变量示例 |
+| `deploy/audit_service.prod.env.example` | 生产化环境变量示例 |
 | `deploy/docker-compose.example.yml` | 部署编排示例 |
+| `deploy/k8s/` | K8s ConfigMap、Secret、PVC、Deployment、Service 模板 |
+| `deploy/prometheus/im_guard_alerts.yaml` | Prometheus 告警规则模板 |
 
-## 5. 如果只剩 10 分钟复习
+## 5. 验收命令
+
+```bash
+LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 make test
+make enterprise-check
+make readiness-check
+```
+
+`readiness-check` 会生成 `outputs/readiness_check.json`，用于确认核心交付物、`.gitignore` 大数据忽略规则和本机 XGuard 数据状态。
+
+## 6. 如果只剩 10 分钟复习
 
 按这个顺序看：
 
@@ -96,6 +125,6 @@
 5. `FINAL_INTERVIEW_CHECKLIST.md` 的最后一段收束话术。
 6. `RESUME_AND_STORYLINE.md` 的 1 分钟讲法。
 
-## 6. 一句话收束
+## 7. 一句话收束
 
 这个项目的核心价值是：把 IM 私聊风控从一个文本二分类问题，升级成了一个可解释、可路由、可灰度、可回流的多证据业务审核系统。

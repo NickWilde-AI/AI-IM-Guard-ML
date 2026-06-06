@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from dataclasses import asdict
 from pathlib import Path
 
 from .dataio import load_yaml, read_jsonl, stratified_summary, write_jsonl
@@ -31,6 +32,20 @@ def main(argv: list[str] | None = None) -> int:
     p_eval = sub.add_parser("eval")
     p_eval.add_argument("pred_jsonl")
 
+    p_eval_report = sub.add_parser("eval-report")
+    p_eval_report.add_argument("pred_jsonl")
+    p_eval_report.add_argument("--out", default="outputs/offline_eval_report.md")
+    p_eval_report.add_argument("--title", default="AI-IM-Guard-ML 离线评测报告")
+
+    p_delivery = sub.add_parser("delivery-summary")
+    p_delivery.add_argument("--out", default="outputs/enterprise_delivery_summary.md")
+    p_delivery.add_argument("--project-root", default=".")
+
+    p_readiness = sub.add_parser("readiness-check")
+    p_readiness.add_argument("--project-root", default=".")
+    p_readiness.add_argument("--out")
+    p_readiness.add_argument("--fail-on-warn", action="store_true")
+
     p_train = sub.add_parser("train")
     p_train.add_argument("train_jsonl_or_dataset")
 
@@ -41,6 +56,18 @@ def main(argv: list[str] | None = None) -> int:
     p_alerts = sub.add_parser("alerts")
     p_alerts.add_argument("prediction_jsonl")
     p_alerts.add_argument("--baseline-json")
+
+    p_window_alerts = sub.add_parser("window-alerts")
+    p_window_alerts.add_argument("prediction_jsonl")
+    p_window_alerts.add_argument("--baseline-json")
+    p_window_alerts.add_argument("--window-size", type=int, default=100)
+    p_window_alerts.add_argument("--step-size", type=int)
+
+    p_drift = sub.add_parser("drift-report")
+    p_drift.add_argument("prediction_jsonl")
+    p_drift.add_argument("--baseline-json", help="Monitoring report JSON produced by `monitor`.")
+    p_drift.add_argument("--baseline-pred-jsonl", help="Historical prediction JSONL used to build the baseline report.")
+    p_drift.add_argument("--out")
 
     p_audit = sub.add_parser("audit-data")
     p_audit.add_argument("jsonl")
@@ -106,6 +133,36 @@ def main(argv: list[str] | None = None) -> int:
         }
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
+    if args.cmd == "eval-report":
+        from .reporting import build_offline_eval_report
+
+        report = build_offline_eval_report(read_jsonl(args.pred_jsonl), title=args.title)
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(report, encoding="utf-8")
+        print(args.out)
+        return 0
+    if args.cmd == "delivery-summary":
+        from .reporting import build_delivery_summary
+
+        report = build_delivery_summary(args.project_root)
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(report, encoding="utf-8")
+        print(args.out)
+        return 0
+    if args.cmd == "readiness-check":
+        from .reporting import build_readiness_check
+
+        report = build_readiness_check(args.project_root)
+        text = json.dumps(report, ensure_ascii=False, indent=2)
+        if args.out:
+            Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+            Path(args.out).write_text(text + "\n", encoding="utf-8")
+            print(args.out)
+        else:
+            print(text)
+        if report["status"] == "fail" or (args.fail_on_warn and report["status"] == "warn"):
+            return 1
+        return 0
     if args.cmd == "train":
         run_sft(cfg, args.train_jsonl_or_dataset, cfg.get("rubrics", {}))
         return 0
@@ -131,6 +188,54 @@ def main(argv: list[str] | None = None) -> int:
                 baseline = json.load(fh)
             report = {"current": report, "diff": compare_reports(report, baseline)}
         print(json.dumps(evaluate_alerts(report, cfg.get("alert_thresholds", {})), ensure_ascii=False, indent=2))
+        return 0
+    if args.cmd == "window-alerts":
+        from .monitoring import build_monitoring_report, build_sliding_window_report
+
+        rows = read_jsonl(args.prediction_jsonl)
+        baseline = None
+        if args.baseline_json:
+            with Path(args.baseline_json).open("r", encoding="utf-8") as fh:
+                baseline = json.load(fh)
+        else:
+            baseline = build_monitoring_report(rows)
+        report = build_sliding_window_report(
+            rows,
+            window_size=args.window_size,
+            step_size=args.step_size,
+            baseline_report=baseline,
+            thresholds=cfg.get("alert_thresholds", {}),
+        )
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        return 0
+    if args.cmd == "drift-report":
+        from .drift_detection import detect_drift
+        from .monitoring import build_monitoring_report
+
+        current_rows = read_jsonl(args.prediction_jsonl)
+        current_report = build_monitoring_report(current_rows)
+        if args.baseline_json:
+            with Path(args.baseline_json).open("r", encoding="utf-8") as fh:
+                baseline_report = json.load(fh)
+        elif args.baseline_pred_jsonl:
+            baseline_report = build_monitoring_report(read_jsonl(args.baseline_pred_jsonl))
+        else:
+            baseline_report = current_report
+        drift = detect_drift(current_report, baseline_report)
+        report = {
+            "status": drift.status,
+            "summary": drift.summary,
+            "current_total": current_report.get("total", 0),
+            "baseline_total": baseline_report.get("total", 0),
+            "tests": [asdict(test) for test in drift.tests],
+        }
+        text = json.dumps(report, ensure_ascii=False, indent=2)
+        if args.out:
+            Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+            Path(args.out).write_text(text + "\n", encoding="utf-8")
+            print(args.out)
+        else:
+            print(text)
         return 0
     if args.cmd == "audit-data":
         from .data_audit import audit_dataset, split_leakage_report

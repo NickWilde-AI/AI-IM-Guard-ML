@@ -2,7 +2,7 @@
 
 import pytest
 
-from im_guard_ml.monitoring import build_monitoring_report, compare_reports
+from im_guard_ml.monitoring import build_monitoring_report, build_sliding_window_report, compare_reports
 from im_guard_ml.drift_detection import (
     chi_square_test,
     ks_test,
@@ -61,6 +61,49 @@ class TestCompareReports:
         delta = compare_reports(report, report)
         assert delta["total_delta"] == 0
         assert delta["gift_total_value_mean_delta"] == 0.0
+
+
+class TestSlidingWindowReport:
+    def test_detects_abnormal_window(self):
+        safe_rows = [
+            {
+                "prediction": {
+                    "risk_level": "low_risk",
+                    "final_judgment": "not_exist_violation",
+                    "handling_suggestion": "ignore",
+                },
+                "chat_evidence_list": ["正常聊天"],
+                "behavior_abnormal_list": ["normal"],
+            }
+            for _ in range(10)
+        ]
+        risky_rows = [
+            {
+                "prediction": {
+                    "risk_level": "high_risk",
+                    "final_judgment": "exist_violation",
+                    "handling_suggestion": "ban_account",
+                },
+                "chat_evidence_list": ["违规"],
+                "behavior_abnormal_list": ["abnormal"],
+            }
+            for _ in range(10)
+        ]
+
+        report = build_sliding_window_report(
+            safe_rows + risky_rows,
+            window_size=10,
+            step_size=10,
+            thresholds={"ban_account_rate_warn": 0.2, "ban_account_rate_critical": 0.5},
+        )
+
+        assert report["status"] == "critical"
+        assert report["window_count"] == 2
+        assert report["windows"][1]["status"] == "critical"
+
+    def test_rejects_invalid_window_size(self):
+        with pytest.raises(ValueError, match="window_size"):
+            build_sliding_window_report([], window_size=0)
 
 
 class TestChiSquareTest:

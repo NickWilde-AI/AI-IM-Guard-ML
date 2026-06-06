@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
 
+from .privacy import build_input_summary
+
 
 @dataclass(slots=True)
 class VersionInfo:
@@ -46,11 +48,6 @@ def build_audit_log(
         "created_at": datetime.now(UTC).isoformat(),
         **versions.to_dict(),
         "latency_ms": latency_ms,
-        "input_summary": {
-            "chat_evidence_count": len(case.get("chat_evidence_list", []) or []),
-            "behavior_abnormal_count": len(case.get("behavior_abnormal_list", []) or []),
-            "hint_topic": case.get("hint_topic"),
-        },
+        "input_summary": build_input_summary(case),
         "prediction": prediction,
     }
-
