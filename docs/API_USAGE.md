@@ -75,6 +75,28 @@ export IM_GUARD_API_TOKEN_HASHES="a2b...64位hex...9f:writer,0f3...64位hex...1c
 | `GET` | `/simulator/config` | `config` | 读取模拟器配置 |
 | `POST` | `/simulator/speed` | `config` | 设置模拟器速度 |
 
+## API 契约
+
+FastAPI 会自动生成 OpenAPI schema。本仓库额外提供 `api-contract` 命令，把关键业务接口作为契约门禁：
+
+```bash
+PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml api-contract \
+  --out outputs/openapi_contract.json \
+  --fail-on-missing
+```
+
+契约要求至少包含：
+
+- `GET /health`
+- `GET /ready`
+- `GET /config`
+- `POST /judge`
+- `GET /dashboard/data`
+- `GET /metrics`
+- `GET /audit/tickets/{ticket_id}`
+
+`make enterprise-check` 和 GitHub Actions 会运行这个检查，防止核心接口被误删或改名。
+
 ## 请求 ID
 
 客户端可以传入：

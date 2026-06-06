@@ -44,6 +44,10 @@ def main(argv: list[str] | None = None) -> int:
     p_ab.add_argument("--json-out", help="Optional machine-readable JSON report path.")
     p_ab.add_argument("--title", default="AI-IM-Guard-ML A/B 灰度对比报告")
 
+    p_api_contract = sub.add_parser("api-contract")
+    p_api_contract.add_argument("--out", default="outputs/openapi_contract.json")
+    p_api_contract.add_argument("--fail-on-missing", action="store_true")
+
     p_delivery = sub.add_parser("delivery-summary")
     p_delivery.add_argument("--out", default="outputs/enterprise_delivery_summary.md")
     p_delivery.add_argument("--project-root", default=".")
@@ -159,6 +163,16 @@ def main(argv: list[str] | None = None) -> int:
             Path(args.json_out).parent.mkdir(parents=True, exist_ok=True)
             Path(args.json_out).write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(args.out)
+        return 0
+    if args.cmd == "api-contract":
+        from .api_contract import build_openapi_contract
+
+        contract = build_openapi_contract(args.config)
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(json.dumps(contract, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(args.out)
+        if args.fail_on_missing and contract["x-im-guard-contract-status"]["status"] != "pass":
+            return 1
         return 0
     if args.cmd == "delivery-summary":
         from .reporting import build_delivery_summary

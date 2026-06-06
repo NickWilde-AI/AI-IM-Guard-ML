@@ -13,7 +13,7 @@
 | 数据 | 示例数据 + XGuard 公开数据接入 | 已有冷启动公开安全底座 | 缺真实 IM 私聊、申诉和人审样本 |
 | 训练 | SFT 入口、LoRA 配置、公开样本保守归一 | 能说明训练链路和标签防污染 | 缺真实训练/验证/测试拆分和线上回流 |
 | 测试 | 单元测试覆盖核心 schema、解析、后处理、评测、监控，GitHub Actions 自动运行 enterprise-check | 已补数据转换、API 安全测试和远端质量门禁 | 缺生产级压测、契约测试和多实例测试 |
-| API | FastAPI、可选鉴权、request_id、请求限制、基础限流、审计落盘 | 具备 demo 到服务化的关键桥梁 | 缺生产网关、租户隔离和网关级限流 |
+| API | FastAPI、可选鉴权、request_id、请求限制、基础限流、审计落盘、OpenAPI 契约门禁 | 具备 demo 到服务化的关键桥梁，并能防止核心接口漂移 | 缺生产网关、租户隔离和网关级限流 |
 | 安全 | Bearer Token、SHA-256 token hash、常量时间比较、最小角色权限、CORS 配置、公开数据不训练强处置、审计脱敏摘要 | 展示级安全边界明确，避免在生产化模板中直接保存明文 token | 缺企业密钥轮换、租户隔离和网关级 PII 策略 |
 | 审计 | CLI 审计日志 + API JSONL/SQLite 审计后端 | 可追踪版本和处置结果，支持按 ticket 查询 | 缺归档、合规留存和跨实例集中查询 |
 | 监控 | Prometheus 文本指标、延迟分位数、监控摘要、滑动窗口异常检测、drift 检测、SLO、告警规则 | 能展示核心风控指标意识 | 缺真实告警平台和实例维度聚合 |
@@ -28,6 +28,7 @@
 - API 支持可选 Bearer Token、可配置 CORS、`request_id` 和 API 审计 JSONL。
 - API 支持 `admin / writer / reader / auditor` 最小角色权限。
 - API 支持请求大小限制、基础限流、结构化错误、`/ready` 和按 `ticket_id` 查询审计事件。
+- API 支持 OpenAPI 契约导出和关键接口缺失检查，纳入 `enterprise-check`。
 - 新增 API 使用说明，覆盖接口表、鉴权、错误码、审计查询和压测入口。
 - API 审计支持 `jsonl` 与 `sqlite` 两种后端，SQLite 后端建表并按 `ticket_id` 索引查询。
 - 审计事件记录脱敏输入摘要、payload hash 和 PII 类型，不落完整原文证据。
