@@ -23,8 +23,11 @@ def audit_dataset(rows: list[dict[str, Any]]) -> dict[str, Any]:
     duplicate_ids: list[str] = []
     duplicate_payloads: list[str] = []
     source_counter: Counter[str] = Counter()
+    source_type_counter: Counter[str] = Counter()
     topic_counter: Counter[str] = Counter()
+    risk_counter: Counter[str] = Counter()
     judgment_counter: Counter[str] = Counter()
+    handling_counter: Counter[str] = Counter()
     seen_ids: set[str] = set()
     seen_hashes: dict[str, str] = {}
     public_multitask_leaks: list[str] = []
@@ -45,9 +48,12 @@ def audit_dataset(rows: list[dict[str, Any]]) -> dict[str, Any]:
         seen_hashes[payload_hash] = ticket_id
         source = str(row.get("source", "unknown"))
         source_counter[source] += 1
+        source_type_counter[_source_type(row)] += 1
         label = row.get("label", {})
         topic_counter[str(label.get("topic", "missing"))] += 1
+        risk_counter[str(label.get("risk_level", "missing"))] += 1
         judgment_counter[str(label.get("final_judgment", "missing"))] += 1
+        handling_counter[str(label.get("handling_suggestion", "missing"))] += 1
         errors = validate_label(label) if isinstance(label, dict) else ["label must be an object"]
         if errors:
             label_errors.append({"ticket_id": ticket_id, "errors": errors})
@@ -74,8 +80,21 @@ def audit_dataset(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "pii_risk_by_type": dict(sorted(pii_counter.items())),
         "pii_risk_sample": pii_samples,
         "by_source": dict(sorted(source_counter.items())),
+        "by_source_type": dict(sorted(source_type_counter.items())),
         "by_topic": dict(sorted(topic_counter.items())),
+        "by_risk_level": dict(sorted(risk_counter.items())),
         "by_final_judgment": dict(sorted(judgment_counter.items())),
+        "by_handling_suggestion": dict(sorted(handling_counter.items())),
+        "distribution_warnings": _distribution_warnings(
+            len(rows),
+            {
+                "source_type": source_type_counter,
+                "topic": topic_counter,
+                "risk_level": risk_counter,
+                "final_judgment": judgment_counter,
+                "handling_suggestion": handling_counter,
+            },
+        ),
         "quality_status": _quality_status(missing, duplicate_ids, duplicate_payloads, label_errors, public_multitask_leaks),
     }
 
@@ -102,6 +121,43 @@ def split_leakage_report(train_rows: list[dict[str, Any]], eval_rows: list[dict[
 def detect_pii_types(row: dict[str, Any]) -> list[str]:
     text = "\n".join(_text_fragments(row))
     return [name for name, pattern in PII_PATTERNS.items() if pattern.search(text)]
+
+
+def _source_type(row: dict[str, Any]) -> str:
+    task_type = str(row.get("task_type", "")).strip()
+    if task_type:
+        return task_type
+    source = str(row.get("source", "")).lower()
+    if "hard" in source or "refinement" in source:
+        return "hard_case"
+    if "synthetic" in source or "generator" in source:
+        return "synthetic"
+    if "public" in source or "xguard" in source:
+        return "public_binary"
+    if source and source != "unknown":
+        return "internal"
+    return "unknown"
+
+
+def _distribution_warnings(total: int, counters: dict[str, Counter[str]], *, dominance_threshold: float = 0.95) -> list[dict[str, Any]]:
+    if total < 20:
+        return []
+    warnings: list[dict[str, Any]] = []
+    for field, counter in counters.items():
+        if not counter:
+            continue
+        label, count = counter.most_common(1)[0]
+        ratio = count / total
+        if ratio >= dominance_threshold:
+            warnings.append(
+                {
+                    "field": field,
+                    "dominant_value": label,
+                    "ratio": round(ratio, 4),
+                    "message": f"{field} is dominated by {label}; verify sampling or split strategy before training.",
+                }
+            )
+    return warnings
 
 
 def _text_fragments(value: Any) -> list[str]:
