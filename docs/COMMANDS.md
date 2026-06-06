@@ -213,6 +213,17 @@ PYTHONPATH=src python3 -m im_guard_ml.cli readiness-check --project-root . --out
 
 `readiness-check` 会检查核心交付物、`.gitignore` 中的大数据忽略规则、本机 XGuard 下载与转换文件。仓库核心交付物缺失会返回失败；本机大数据文件缺失只返回 warn，因为这些文件不应提交到 git。
 
+## GitHub CI
+
+仓库包含 `.github/workflows/ci.yml`，会在 push 和 pull request 时运行：
+
+```bash
+python -m pip install -e ".[dev,serve]"
+make enterprise-check
+```
+
+CI 会上传 `outputs/enterprise_delivery_summary.md` 和 `outputs/readiness_check.json` 作为 artifact。CI 不下载 XGuard 大数据；大数据只保留在本地忽略目录。
+
 ## 轻量压力测试
 
 先启动服务，再运行：

@@ -7,6 +7,7 @@
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/API-FastAPI-009688)](https://fastapi.tiangolo.com/)
 [![vLLM](https://img.shields.io/badge/Serving-vLLM-7c3aed)](https://github.com/vllm-project/vllm)
+[![enterprise-check](https://github.com/NickWilde-AI/AI-IM-Guard-ML/actions/workflows/ci.yml/badge.svg)](https://github.com/NickWilde-AI/AI-IM-Guard-ML/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 AI-IM-Guard-ML 将聊天语义证据、结构化行为异常、LLM Judge、策略路由、监控告警、版本追踪和审计日志组合成一套完整的机器学习工程链路。
@@ -95,6 +96,8 @@ curl http://127.0.0.1:8000/metrics
 - [TRAINING_AND_EVALUATION.md](docs/TRAINING_AND_EVALUATION.md)
 - [DEPLOYMENT_AND_OPERATIONS.md](docs/DEPLOYMENT_AND_OPERATIONS.md)
 - [ENTERPRISE_READINESS_REVIEW.md](docs/ENTERPRISE_READINESS_REVIEW.md)
+
+GitHub Actions 会在 push 和 pull request 时运行 `make enterprise-check`，覆盖单元测试、源码编译、交付摘要和 readiness-check。公开大数据文件仍只保留在本地忽略目录，不进入 CI 和 git。
 
 ## 系统架构
 

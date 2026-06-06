@@ -18,6 +18,7 @@
 - vLLM 部署、Docker、Compose、K8s、服务配置、灰度和事故 runbook。
 - API 使用说明、鉴权、最小 RBAC、SQLite 审计、脱敏摘要和 SLO/Prometheus 告警。
 - 机器可读 readiness-check，检查交付物、忽略规则和本机公开数据状态。
+- GitHub Actions 企业验收门禁，自动运行测试、编译、交付摘要和 readiness-check。
 - 模型卡、实验报告、rubric、标注规范。
 - 简历 bullet、面试叙事、深挖问答、自检清单。
 
@@ -58,6 +59,7 @@
 | `data/samples/sample_cases.jsonl` | 可演示样例数据 |
 | `pyproject.toml` | Python 包与可选依赖配置 |
 | `Makefile` | 常用命令快捷入口 |
+| `.github/workflows/ci.yml` | GitHub Actions 企业验收门禁 |
 
 ## 4. 部署交付
 

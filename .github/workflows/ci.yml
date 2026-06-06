@@ -1,0 +1,45 @@
+name: enterprise-check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  enterprise-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package
+        env:
+          LANG: C.UTF-8
+          LC_ALL: C.UTF-8
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev,serve]"
+
+      - name: Run enterprise check
+        env:
+          LANG: C.UTF-8
+          LC_ALL: C.UTF-8
+        run: make enterprise-check
+
+      - name: Upload readiness artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enterprise-readiness
+          path: |
+            outputs/enterprise_delivery_summary.md
+            outputs/readiness_check.json
+          if-no-files-found: warn

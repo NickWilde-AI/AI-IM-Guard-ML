@@ -18,6 +18,7 @@ REQUIRED_DELIVERY_FILES = {
     "命令手册": "docs/COMMANDS.md",
     "策略变更记录": "docs/POLICY_CHANGELOG.md",
     "本地 UTF-8 环境根因": "docs/LOCAL_ENV_ROOT_CAUSE.md",
+    "GitHub CI 质量门禁": ".github/workflows/ci.yml",
     "A/B 灰度对比实现": "src/im_guard_ml/rollout.py",
     "Dockerfile": "deploy/Dockerfile",
     "Docker Compose": "deploy/docker-compose.example.yml",
