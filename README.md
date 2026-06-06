@@ -306,6 +306,7 @@ bash deploy/vllm_serve.sh
 - [命令手册](docs/COMMANDS.md)
 - [项目总索引](docs/PROJECT_INDEX.md)
 - [Offer 面试演示脚本](docs/OFFER_DEMO_SCRIPT.md)
+- [Offer 高压答辩 Q&A](docs/OFFER_DEFENSE_QA.md)
 - [面试讲解手册](docs/INTERVIEW_PLAYBOOK.md)
 - [简历与叙事稿](docs/RESUME_AND_STORYLINE.md)
 - [部署模板](deploy/)
