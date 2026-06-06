@@ -31,31 +31,34 @@
 9. [DATA_QUALITY_AND_AUDIT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DATA_QUALITY_AND_AUDIT.md)
    准备数据质量、标签冲突、训练/评测泄漏相关追问。
 
-10. [DEEP_DIVE_QA.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DEEP_DIVE_QA.md)
+10. [OFFER_DEMO_SCRIPT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/OFFER_DEMO_SCRIPT.md)
+   面试现场的 5 分钟演示路线、话术边界和高价值追问回答。
+
+11. [DEEP_DIVE_QA.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DEEP_DIVE_QA.md)
    背高频深挖问题的回答结构。
 
-11. [INTERVIEW_PLAYBOOK.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/INTERVIEW_PLAYBOOK.md)
+12. [INTERVIEW_PLAYBOOK.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/INTERVIEW_PLAYBOOK.md)
    最后压缩成 30 秒、2 分钟、5 分钟讲法。
 
-12. [FINAL_INTERVIEW_CHECKLIST.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/FINAL_INTERVIEW_CHECKLIST.md)
+13. [FINAL_INTERVIEW_CHECKLIST.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/FINAL_INTERVIEW_CHECKLIST.md)
    面试前 30 分钟做最终自检。
 
-13. [RESUME_AND_STORYLINE.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/RESUME_AND_STORYLINE.md)
+14. [RESUME_AND_STORYLINE.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/RESUME_AND_STORYLINE.md)
     简历 bullet、STAR 叙事和 1/3/5 分钟讲法。
 
-14. [COMMANDS.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/COMMANDS.md)
+15. [COMMANDS.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/COMMANDS.md)
     常用命令、Makefile 和部署入口。
 
-15. [INCIDENT_RUNBOOK.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/INCIDENT_RUNBOOK.md)
+16. [INCIDENT_RUNBOOK.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/INCIDENT_RUNBOOK.md)
     线上事故止血、排查和复盘。
 
-16. [SLO_AND_ALERTING.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/SLO_AND_ALERTING.md)
+17. [SLO_AND_ALERTING.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/SLO_AND_ALERTING.md)
     SLO、Prometheus 指标和告警规则。
 
-17. [DELIVERY_REPORT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DELIVERY_REPORT.md)
+18. [DELIVERY_REPORT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DELIVERY_REPORT.md)
     当前项目交付总清单。
 
-18. [SOURCE_DOC_COVERAGE.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/SOURCE_DOC_COVERAGE.md)
+19. [SOURCE_DOC_COVERAGE.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/SOURCE_DOC_COVERAGE.md)
     原始两份文档内容和当前工程的覆盖关系。
 
 ## 2. 面试必须讲清的 6 件事
@@ -119,11 +122,11 @@ make readiness-check
 按这个顺序看：
 
 1. `INTERVIEW_PLAYBOOK.md` 的 30 秒和 2 分钟版本。
-2. `PROJECT_FROM_ZERO_TO_ONE.md` 的第 2、5、6、8、13、17 节。
-3. `MODEL_CARD_AND_EXPERIMENT_REPORT.md` 的核心结果和消融实验。
-4. `DEEP_DIVE_QA.md` 的第 3、6、11、14、18、20、25 题。
-5. `FINAL_INTERVIEW_CHECKLIST.md` 的最后一段收束话术。
-6. `RESUME_AND_STORYLINE.md` 的 1 分钟讲法。
+2. `OFFER_DEMO_SCRIPT.md` 的 live demo 和不能说过头的话。
+3. `PROJECT_FROM_ZERO_TO_ONE.md` 的第 2、5、6、8、13、17 节。
+4. `MODEL_CARD_AND_EXPERIMENT_REPORT.md` 的核心结果和消融实验。
+5. `DEEP_DIVE_QA.md` 的第 3、6、11、14、18、20、25 题。
+6. `FINAL_INTERVIEW_CHECKLIST.md` 的最后一段收束话术。
 
 ## 7. 一句话收束
 

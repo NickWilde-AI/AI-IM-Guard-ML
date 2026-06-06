@@ -11,6 +11,22 @@
 - 基于 Qwen3.5-27B 进行 completion-only 多任务 SFT，并通过 self + Qwen-flash + 规则引擎 committee 迭代回灌灰区样本；在 1024 条人审测试集上取得 final_judgment Acc 82.1、risk macro-F1 75.6、handling macro-F1 73.2，ban FPR 控制到 2.6%。
 - 参与 vLLM 推理上线方案设计，补齐 JSON Schema 校验、策略路由、人审复核、版本追踪和监控回流机制；单实例 P95 延迟控制在 1.2s 内，支持生产灰度和规则兜底。
 
+如果面试官看的是当前 GitHub 仓库，需要主动补一句边界：
+
+> GitHub 版本是生产化展示工程，保留公开数据接入、训练入口、API、安全、审计、监控、部署和文档体系；真实公司内部数据、线上 checkpoint、人审平台和网关能力不能公开，所以用公开 XGuard 数据和启发式 Judge 跑通可复现链路。
+
+## 1.1 简历使用建议
+
+如果你有真实工作经历能支撑内部数据和线上指标，可以使用上面的完整 bullet。  
+如果你把这个项目作为个人作品集，推荐改成更稳妥的表述：
+
+- 设计并开源 IM 私聊风控审核生产化展示项目，将文本二分类审核升级为语义证据 + 行为证据融合的多任务 LLM Judge，统一输出 `risk_level / final_judgment / handling_suggestion` 与解释依据。
+- 接入 Apache-2.0 的 XGuard 公开中文安全数据，设计到 IM 风控标签体系的保守映射，转换为项目 JSONL 训练格式，并补齐去重、train/val/test 拆分、标签合法性、泄漏和 PII 风险审计。
+- 实现 FastAPI 审核服务，支持 Bearer Token/RBAC、请求 ID、请求大小限制、基础限流、结构化错误、JSONL/SQLite 审计持久化、按 ticket 查询和脱敏输入摘要。
+- 补齐 Prometheus 指标、滑动窗口异常检测、drift 检测、离线评测报告、Docker/Compose/K8s 部署模板和企业级成熟度评审文档；测试从 77 个扩展到 107 个并通过 `enterprise-check`。
+
+这版更适合 GitHub 作品集，不会把展示项目说成真实公司上线项目。
+
 ## 2. STAR 叙事
 
 Situation：
@@ -66,4 +82,3 @@ Result：
 - 你能用消融证明模块贡献。
 - 你知道模型上线需要后处理、灰度、监控、人审和回滚。
 - 你能把 LLM 训练、风控业务和生产工程连起来。
-
