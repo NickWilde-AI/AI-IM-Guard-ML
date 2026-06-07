@@ -86,6 +86,8 @@ docker compose -f deploy/docker-compose.example.yml down
 
 Compose 示例会在 `IM_GUARD_MODEL_PATH` 指向的文件或目录存在时加载 checkpoint；如果路径为空或不存在，则自动使用启发式 demo Judge，避免没有模型文件时服务无法启动。API 服务包含 `/ready` healthcheck。
 
+`deploy/docker-compose.example.yml` 中的 `env_file` 相对 compose 文件所在目录解析，因此默认读取 `deploy/audit_service.env.example`；`../outputs:/app/outputs` 会把仓库根目录的 `outputs/` 挂到容器内审计输出目录。
+
 生产化环境变量 preflight：
 
 ```bash
