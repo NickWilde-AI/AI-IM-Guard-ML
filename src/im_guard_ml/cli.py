@@ -53,6 +53,11 @@ def main(argv: list[str] | None = None) -> int:
     p_preflight.add_argument("--out", default="outputs/production_preflight.json")
     p_preflight.add_argument("--fail-on-warn", action="store_true")
 
+    p_registry = sub.add_parser("model-registry-check")
+    p_registry.add_argument("--registry", default="configs/model_registry.yaml")
+    p_registry.add_argument("--out", default="outputs/model_registry_check.json")
+    p_registry.add_argument("--fail-on-warn", action="store_true")
+
     p_delivery = sub.add_parser("delivery-summary")
     p_delivery.add_argument("--out", default="outputs/enterprise_delivery_summary.md")
     p_delivery.add_argument("--project-root", default=".")
@@ -183,6 +188,16 @@ def main(argv: list[str] | None = None) -> int:
         from .preflight import build_production_preflight
 
         report = build_production_preflight(args.env_file)
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(args.out)
+        if report["status"] == "fail" or (args.fail_on_warn and report["status"] == "warn"):
+            return 1
+        return 0
+    if args.cmd == "model-registry-check":
+        from .model_registry import build_model_registry_report
+
+        report = build_model_registry_report(args.registry)
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
         Path(args.out).write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(args.out)

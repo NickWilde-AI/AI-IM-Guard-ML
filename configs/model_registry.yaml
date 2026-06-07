@@ -1,0 +1,71 @@
+registry_version: model-registry-v1
+current_stable: im-audit-judge-qwen35-27b-sft
+candidate: im-audit-judge-next
+
+models:
+  - model_version: im-audit-judge-qwen35-27b-sft
+    status: stable
+    model_path: outputs/im-audit-judge-qwen35-27b-sft
+    prompt_version: prompt-v1
+    rubric_version: rubric-v1
+    feature_schema_version: feature-schema-v1
+    postprocess_version: postprocess-v1
+    train_data_version: im-audit-train-v1
+    eval_data_version: internal-test-v1+p0p1-replay-v1
+    approved_by: demo-owner
+    approved_at: "2026-06-06T00:00:00Z"
+    rollback_to: heuristic-demo-v0
+    metrics:
+      final_judgment_f1: 0.821
+      handling_macro_f1: 0.732
+      ban_account_fpr: 0.026
+      parse_non_ok_rate: 0.005
+      p95_latency_ms: 1200
+    notes: "Productionized showcase registry entry aligned with MODEL_CARD_AND_EXPERIMENT_REPORT; real deployment must replace checkpoint and approval metadata."
+
+  - model_version: heuristic-demo-v0
+    status: retired
+    model_path: ""
+    prompt_version: prompt-v1
+    rubric_version: rubric-v1
+    feature_schema_version: feature-schema-v1
+    postprocess_version: postprocess-v1
+    train_data_version: demo-sample-v1
+    eval_data_version: demo-sample-v1
+    approved_by: demo-owner
+    approved_at: "2026-06-06T00:00:00Z"
+    rollback_to: ""
+    metrics:
+      final_judgment_f1: 1.0
+      handling_macro_f1: 0.5
+      ban_account_fpr: 0.0
+      parse_non_ok_rate: 0.0
+      p95_latency_ms: 520
+    notes: "Deterministic heuristic judge for local demo and CI smoke tests; not a production model."
+
+  - model_version: im-audit-judge-next
+    status: candidate
+    model_path: outputs/im-audit-judge-next
+    prompt_version: prompt-v1
+    rubric_version: rubric-v1
+    feature_schema_version: feature-schema-v1
+    postprocess_version: postprocess-v1
+    train_data_version: xguard-public-v1+demo-sample-v1
+    eval_data_version: demo-sample-v1
+    approved_by: ""
+    approved_at: ""
+    rollback_to: im-audit-judge-qwen35-27b-sft
+    metrics:
+      final_judgment_f1: 0.835
+      handling_macro_f1: 0.741
+      ban_account_fpr: 0.024
+      parse_non_ok_rate: 0.004
+      p95_latency_ms: 1150
+    notes: "Candidate slot for next checkpoint; approval remains blank until offline eval, A/B replay and preflight pass."
+
+promotion_guardrails:
+  min_final_judgment_f1: 0.80
+  min_handling_macro_f1: 0.70
+  max_ban_account_fpr: 0.03
+  max_parse_non_ok_rate: 0.02
+  max_p95_latency_ms: 1200

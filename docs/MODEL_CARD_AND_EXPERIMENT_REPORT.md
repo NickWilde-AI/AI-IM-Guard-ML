@@ -101,6 +101,30 @@
 
 如果 `ban_account FPR` 超线，即使 overall accuracy 高，也不能进入全量。
 
+## 7.1 模型注册与审批
+
+本仓库提供最小模型注册表：[configs/model_registry.yaml](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/configs/model_registry.yaml)
+
+注册表记录：
+
+- `current_stable`：当前稳定版本。
+- `candidate`：候选版本。
+- `prompt_version / rubric_version / feature_schema_version / postprocess_version`。
+- `train_data_version / eval_data_version`。
+- `approved_by / approved_at`。
+- `rollback_to`。
+- 核心指标和 promotion guardrails。
+
+校验命令：
+
+```bash
+PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml model-registry-check \
+  --registry configs/model_registry.yaml \
+  --out outputs/model_registry_check.json
+```
+
+这个检查会确保稳定版本有审批元数据，候选版本有回滚目标，指标满足上线红线。真实生产中它应替换为企业模型注册和审批平台；当前仓库保留的是可运行的最小治理接口。
+
 ## 8. 已知限制
 
 - 对上游行为特征质量敏感，特征污染会影响处置强度。
@@ -120,4 +144,3 @@
 ## 10. 面试总结句
 
 “这个模型卡里最重要的信息不是某一个分数，而是我能证明每个模块为什么存在：行为证据是最大单点贡献，refinement 解决灰区，公开数据补泛化，多任务学习保证三层输出一致，后处理和人审复核控制生产风险。”
-

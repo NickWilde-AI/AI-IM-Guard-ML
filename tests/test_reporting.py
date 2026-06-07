@@ -64,6 +64,8 @@ def test_build_readiness_check_warns_when_only_local_data_missing(tmp_path):
         ".github/workflows/ci.yml",
         "src/im_guard_ml/api_contract.py",
         "src/im_guard_ml/preflight.py",
+        "configs/model_registry.yaml",
+        "src/im_guard_ml/model_registry.py",
         "src/im_guard_ml/rollout.py",
         "deploy/Dockerfile",
         "deploy/docker-compose.example.yml",

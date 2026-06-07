@@ -45,6 +45,7 @@ jobs:
           path: |
             outputs/openapi_contract.json
             outputs/production_preflight.json
+            outputs/model_registry_check.json
             outputs/enterprise_delivery_summary.md
             outputs/readiness_check.json
           if-no-files-found: warn

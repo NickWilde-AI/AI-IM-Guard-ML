@@ -21,6 +21,8 @@ REQUIRED_DELIVERY_FILES = {
     "GitHub CI 质量门禁": ".github/workflows/ci.yml",
     "API 契约导出与校验": "src/im_guard_ml/api_contract.py",
     "生产环境 preflight 检查": "src/im_guard_ml/preflight.py",
+    "模型注册表": "configs/model_registry.yaml",
+    "模型注册表校验": "src/im_guard_ml/model_registry.py",
     "A/B 灰度对比实现": "src/im_guard_ml/rollout.py",
     "Dockerfile": "deploy/Dockerfile",
     "Docker Compose": "deploy/docker-compose.example.yml",

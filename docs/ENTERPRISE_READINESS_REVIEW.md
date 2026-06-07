@@ -18,7 +18,7 @@
 | 审计 | CLI 审计日志 + API JSONL/SQLite 审计后端 | 可追踪版本和处置结果，支持按 ticket 查询 | 缺归档、合规留存和跨实例集中查询 |
 | 监控 | Prometheus 文本指标、延迟分位数、监控摘要、滑动窗口异常检测、drift 检测、SLO、告警规则 | 能展示核心风控指标意识 | 缺真实告警平台和实例维度聚合 |
 | 部署 | vLLM 脚本、Dockerfile、Docker Compose、K8s 模板、env 示例、生产 preflight | 能讲清服务拆分和部署路径，并能机器检查关键生产配置 | 缺真实集群灰度发布自动化 |
-| 模型治理 | model/prompt/rubric/schema/postprocess 版本、灰度/A/B 配置、人审治理文档 | 具备版本追溯和上线治理意识 | 缺模型注册、审批和真实 A/B 平台 |
+| 模型治理 | model/prompt/rubric/schema/postprocess 版本、模型注册表、指标红线、回滚目标、灰度/A/B 配置、人审治理文档 | 具备版本追溯和最小审批治理意识 | 缺真实企业模型注册平台和线上 A/B 平台 |
 
 ## 已增强项
 
@@ -47,6 +47,7 @@
 - 文档补齐公开数据接入、API 安全配置和本地 UTF-8 locale 要求。
 - 新增 GitHub Actions `enterprise-check`，push/PR 自动运行测试、编译、交付摘要和 readiness-check。
 - 新增 `production-preflight`，上线前检查鉴权、CORS、审计、限流和请求大小配置。
+- 新增 `model-registry-check`，校验 stable/candidate、审批元数据、指标红线和回滚目标。
 
 ## 机器验收
 
@@ -63,7 +64,7 @@ PYTHONPATH=src python3 -m im_guard_ml.cli readiness-check --project-root . --out
 2. 将 SQLite 审计升级为 PostgreSQL 或日志平台集中查询。
 3. 增加生产网关、密钥轮换和集中权限系统。
 4. 将 K8s 模板接入真实集群灰度发布和服务级压测。
-5. 接入模型注册、审批和 A/B 平台。
+5. 将当前最小模型注册表接入企业模型注册、审批和 A/B 平台。
 
 ## 对外表述
 
