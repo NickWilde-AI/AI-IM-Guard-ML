@@ -70,6 +70,7 @@ def test_build_readiness_check_warns_when_only_local_data_missing(tmp_path):
         "deploy/Dockerfile",
         "deploy/docker-compose.example.yml",
         "deploy/k8s/deployment.yaml",
+        "tests/test_deployment_templates.py",
         "deploy/prometheus/im_guard_alerts.yaml",
         "scripts/download_xguard_dataset.py",
         "scripts/benchmark_api.py",

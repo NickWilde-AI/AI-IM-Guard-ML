@@ -3,7 +3,9 @@ kind: Deployment
 metadata:
   name: im-guard-api
 spec:
-  replicas: 2
+  # SQLite/PVC audit storage is a single-node showcase default.
+  # Scale replicas only after switching audit storage to PostgreSQL or a log platform.
+  replicas: 1
   selector:
     matchLabels:
       app: im-guard-api

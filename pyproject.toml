@@ -27,6 +27,7 @@ serve = [
 ]
 dev = [
   "pytest>=8",
+  "pyyaml>=6.0",
 ]
 
 [project.scripts]

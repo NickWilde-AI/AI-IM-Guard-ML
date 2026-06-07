@@ -2,6 +2,8 @@
 
 这些 YAML 是生产化展示模板，适合说明 API 服务如何接入探针、Secret、ConfigMap 和审计持久化。真实生产环境仍应接入公司的镜像仓库、网关、日志平台、密钥系统和集中数据库。
 
+默认 `replicas: 1` 是有意设置：当前模板使用 SQLite + PVC 做审计持久化，适合单副本展示和面试验证。需要多副本时，应先把 `IM_GUARD_AUDIT_BACKEND` 切到 PostgreSQL、日志平台或审计平台，再扩容 Deployment。
+
 ## 应用顺序
 
 ```bash
@@ -43,5 +45,5 @@ kubectl delete -f deploy/k8s/configmap.yaml
 ## 注意
 
 - `secret.example.yaml` 只作模板，生产化展示优先注入 `IM_GUARD_API_TOKEN_HASHES`，真实 token 应由密钥系统或网关托管。
-- SQLite PVC 适合单服务展示，不适合多副本高并发生产写入；真实生产建议换成 PostgreSQL 或日志平台。
-- 多副本 API 如需共享审计查询，应使用集中存储。
+- SQLite PVC 适合单服务展示，不适合多副本高并发生产写入；真实生产建议换成 PostgreSQL、日志平台或审计平台。
+- 多副本 API 如需共享审计查询，必须使用集中存储，并由网关或 Service Mesh 提供限流、鉴权和租户隔离。

@@ -27,6 +27,7 @@ REQUIRED_DELIVERY_FILES = {
     "Dockerfile": "deploy/Dockerfile",
     "Docker Compose": "deploy/docker-compose.example.yml",
     "K8s 模板": "deploy/k8s/deployment.yaml",
+    "部署模板测试": "tests/test_deployment_templates.py",
     "Prometheus 告警": "deploy/prometheus/im_guard_alerts.yaml",
     "XGuard 下载脚本": "scripts/download_xguard_dataset.py",
     "API 压测脚本": "scripts/benchmark_api.py",
