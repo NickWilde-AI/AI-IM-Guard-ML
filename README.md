@@ -10,13 +10,13 @@
 [![enterprise-check](https://github.com/NickWilde-AI/AI-IM-Guard-ML/actions/workflows/ci.yml/badge.svg)](https://github.com/NickWilde-AI/AI-IM-Guard-ML/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-AI-IM-Guard-ML 是一个面向 IM 私聊安全审核的企业级机器学习工程项目。它把聊天证据、行为信号、LLM Judge 训练、策略路由、审计日志、监控告警、模型治理和部署模板串成一套可运行、可扩展、可接入生产环境的工程系统。
-
 [English](README_EN.md) · [快速开始](#快速开始) · [系统架构](#系统架构) · [训练](#训练) · [企业级验收](#企业级验收) · [文档](#文档)
 
 </div>
 
 ---
+
+AI-IM-Guard-ML 是一个面向 IM 私聊安全审核的企业级机器学习工程项目。它把聊天证据、行为信号、LLM Judge 训练、策略路由、审计日志、监控告警、模型治理和部署模板串成一套可运行、可扩展、可接入生产环境的工程系统。
 
 ## 为什么做这个项目
 
@@ -97,14 +97,14 @@ IM 审核样本
   -> 样本回流：把误判和灰区样本用于下一轮训练
 ```
 
-| 层级 | 职责 | 关键文件 |
-| --- | --- | --- |
-| 接入层 | 请求处理、CLI、schema 校验 | `api.py`, `cli.py`, `schema.py` |
-| 证据层 | 聊天和行为证据渲染 | `prompting.py`, `data_audit.py` |
-| 模型层 | 本地规则基线、SFT 训练、checkpoint 推理 | `inference.py`, `training.py` |
-| 决策层 | JSON 修复、标签校验、动作路由 | `parsing.py`, `postprocess.py` |
-| 治理层 | 版本、审计、监控、模型注册 | `versioning.py`, `audit_store.py`, `monitoring.py`, `model_registry.py` |
-| 闭环层 | 离线评测和 hard case 回流 | `evaluation.py`, `refinement.py` |
+核心层级：
+
+- **接入层**：请求处理、CLI、schema 校验。关键文件：`api.py`, `cli.py`, `schema.py`
+- **证据层**：聊天和行为证据渲染。关键文件：`prompting.py`, `data_audit.py`
+- **模型层**：本地规则基线、SFT 训练、checkpoint 推理。关键文件：`inference.py`, `training.py`
+- **决策层**：JSON 修复、标签校验、动作路由。关键文件：`parsing.py`, `postprocess.py`
+- **治理层**：版本、审计、监控、模型注册。关键文件：`versioning.py`, `audit_store.py`, `monitoring.py`, `model_registry.py`
+- **闭环层**：离线评测和 hard case 回流。关键文件：`evaluation.py`, `refinement.py`
 
 ## 快速开始
 

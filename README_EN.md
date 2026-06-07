@@ -10,13 +10,13 @@
 [![enterprise-check](https://github.com/NickWilde-AI/AI-IM-Guard-ML/actions/workflows/ci.yml/badge.svg)](https://github.com/NickWilde-AI/AI-IM-Guard-ML/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-AI-IM-Guard-ML is an enterprise ML engineering project for IM private-message safety review. It combines chat evidence, behavioral signals, LLM Judge training, policy routing, audit trails, monitoring, model governance, and deployment templates into one runnable, extensible system.
-
 [中文](README.md) · [Quick Start](#quick-start) · [Architecture](#architecture) · [Training](#training) · [Enterprise Checks](#enterprise-checks) · [Docs](#documentation)
 
 </div>
 
 ---
+
+AI-IM-Guard-ML is an enterprise ML engineering project for IM private-message safety review. It combines chat evidence, behavioral signals, LLM Judge training, policy routing, audit trails, monitoring, model governance, and deployment templates into one runnable, extensible system.
 
 ## Why This Exists
 
@@ -96,14 +96,14 @@ IM review request
   -> audit store + metrics + feedback loop
 ```
 
-| Layer | Responsibility | Key files |
-| --- | --- | --- |
-| Access | Request handling, CLI, schema validation | `api.py`, `cli.py`, `schema.py` |
-| Evidence | Chat and behavior evidence rendering | `prompting.py`, `data_audit.py` |
-| Model | Local rule-based baseline, SFT training, checkpoint inference | `inference.py`, `training.py` |
-| Decision | JSON recovery, validation, action routing | `parsing.py`, `postprocess.py` |
-| Governance | Versioning, audit, monitoring, registry | `versioning.py`, `audit_store.py`, `monitoring.py`, `model_registry.py` |
-| Feedback | Evaluation and hard-case refinement | `evaluation.py`, `refinement.py` |
+Core layers:
+
+- **Access**: request handling, CLI, schema validation. Key files: `api.py`, `cli.py`, `schema.py`
+- **Evidence**: chat and behavior evidence rendering. Key files: `prompting.py`, `data_audit.py`
+- **Model**: local rule-based baseline, SFT training, checkpoint inference. Key files: `inference.py`, `training.py`
+- **Decision**: JSON recovery, validation, action routing. Key files: `parsing.py`, `postprocess.py`
+- **Governance**: versioning, audit, monitoring, registry. Key files: `versioning.py`, `audit_store.py`, `monitoring.py`, `model_registry.py`
+- **Feedback**: evaluation and hard-case refinement. Key files: `evaluation.py`, `refinement.py`
 
 ## Quick Start
 
