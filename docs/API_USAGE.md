@@ -207,11 +207,34 @@ Prometheus 指标包含请求总量、风险等级、主题、处置建议、rou
 
 ## 压测
 
+先启动服务：
+
+```bash
+make serve
+```
+
+然后运行轻量压测门禁：
+
+```bash
+make benchmark-api
+```
+
+默认会请求 `/judge` 100 次，生成 `outputs/api_benchmark.json`，并在出现非 2xx 响应或 P95 超过 1200ms 时返回失败。请求量和阈值可以通过 Makefile 变量覆盖：
+
+```bash
+BENCHMARK_REQUESTS=300 BENCHMARK_P95_MS=1500 make benchmark-api
+```
+
+也可以直接运行脚本：
+
 ```bash
 python3 scripts/benchmark_api.py \
   --url http://127.0.0.1:8000/judge \
   --requests 100 \
-  --token replace-with-a-secret
+  --token replace-with-a-secret \
+  --out outputs/api_benchmark.json \
+  --fail-on-non-2xx \
+  --fail-on-p95-ms 1200
 ```
 
 压测脚本用于展示级基准，不替代真实生产压测。生产压测应覆盖多实例、网关、模型队列、长输入、失败重试和审计写入压力。

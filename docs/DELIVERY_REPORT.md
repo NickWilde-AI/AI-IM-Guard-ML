@@ -16,7 +16,7 @@
 - 训练评测闭环、评测报告、监控、滑动窗口异常检测、drift 检测、告警。
 - 版本追踪、审计日志。
 - vLLM 部署、Docker、Compose、K8s、服务配置、灰度和事故 runbook。
-- API 使用说明、鉴权、最小 RBAC、SQLite 审计、脱敏摘要和 SLO/Prometheus 告警。
+- API 使用说明、鉴权、最小 RBAC、SQLite 审计、脱敏摘要、轻量压测门禁和 SLO/Prometheus 告警。
 - 机器可读 readiness-check，检查交付物、忽略规则和本机公开数据状态。
 - GitHub Actions 企业验收门禁，自动运行测试、编译、交付摘要和 readiness-check。
 - OpenAPI 契约导出与关键接口缺失检查，防止核心 API 被误删或改名。
@@ -67,6 +67,7 @@
 | `pyproject.toml` | Python 包与可选依赖配置 |
 | `Makefile` | 常用命令快捷入口 |
 | `.github/workflows/ci.yml` | GitHub Actions 企业验收门禁 |
+| `scripts/benchmark_api.py` | 本地 API 轻量压测脚本，支持落盘、非 2xx 和 P95 阈值门禁 |
 
 ## 4. 部署交付
 

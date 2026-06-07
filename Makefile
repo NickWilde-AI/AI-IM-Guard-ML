@@ -9,8 +9,10 @@ SIM_INTERVAL ?= 1
 XGUARD_RAW ?= data/external/xguard_train_open_200k.jsonl
 XGUARD_TRAIN ?= data/train/xguard_public_train.jsonl
 XGUARD_SPLITS ?= data/train/xguard_splits
+BENCHMARK_REQUESTS ?= 100
+BENCHMARK_P95_MS ?= 1200
 
-.PHONY: summary predict predict-route eval monitor alerts window-alerts drift-report ab-report api-contract production-preflight model-registry-check audit-data build-demo download-xguard build-xguard audit-xguard eval-report delivery-summary readiness-check enterprise-check compile clean serve simulator demo test
+.PHONY: summary predict predict-route eval monitor alerts window-alerts drift-report ab-report api-contract production-preflight model-registry-check audit-data build-demo download-xguard build-xguard audit-xguard eval-report delivery-summary readiness-check benchmark-api enterprise-check compile clean serve simulator demo test
 
 summary:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) summary $(SAMPLE)
@@ -78,6 +80,10 @@ delivery-summary:
 
 readiness-check:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) readiness-check --project-root . --out $(OUT_DIR)/readiness_check.json
+
+benchmark-api:
+	mkdir -p $(OUT_DIR)
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) scripts/benchmark_api.py --url http://127.0.0.1:$(PORT)/judge --requests $(BENCHMARK_REQUESTS) --out $(OUT_DIR)/api_benchmark.json --fail-on-non-2xx --fail-on-p95-ms $(BENCHMARK_P95_MS)
 
 enterprise-check: test compile api-contract production-preflight model-registry-check delivery-summary readiness-check
 

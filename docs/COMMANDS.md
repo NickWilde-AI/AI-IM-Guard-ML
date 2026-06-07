@@ -235,7 +235,8 @@ CI 会上传 `outputs/openapi_contract.json`、`outputs/production_preflight.jso
 先启动服务，再运行：
 
 ```bash
-python3 scripts/benchmark_api.py --url http://127.0.0.1:8000/judge --requests 100
+make serve
+make benchmark-api
 ```
 
 如果开启了 `IM_GUARD_API_TOKEN`：
@@ -244,8 +245,13 @@ python3 scripts/benchmark_api.py --url http://127.0.0.1:8000/judge --requests 10
 python3 scripts/benchmark_api.py \
   --url http://127.0.0.1:8000/judge \
   --requests 100 \
-  --token replace-with-a-secret
+  --token replace-with-a-secret \
+  --out outputs/api_benchmark.json \
+  --fail-on-non-2xx \
+  --fail-on-p95-ms 1200
 ```
+
+`make benchmark-api` 默认生成 `outputs/api_benchmark.json`，并通过 `BENCHMARK_REQUESTS` 和 `BENCHMARK_P95_MS` 覆盖请求量与 P95 门槛。
 
 ## SLO 与告警
 
