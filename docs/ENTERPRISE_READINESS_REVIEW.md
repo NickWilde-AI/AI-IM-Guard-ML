@@ -17,7 +17,7 @@
 | 安全 | Bearer Token、SHA-256 token hash、常量时间比较、最小角色权限、CORS 配置、公开数据不训练强处置、审计脱敏摘要 | 展示级安全边界明确，避免在生产化模板中直接保存明文 token | 缺企业密钥轮换、租户隔离和网关级 PII 策略 |
 | 审计 | CLI 审计日志 + API JSONL/SQLite 审计后端 | 可追踪版本和处置结果，支持按 ticket 查询 | 缺归档、合规留存和跨实例集中查询 |
 | 监控 | Prometheus 文本指标、延迟分位数、监控摘要、滑动窗口异常检测、drift 检测、SLO、告警规则 | 能展示核心风控指标意识 | 缺真实告警平台和实例维度聚合 |
-| 部署 | vLLM 脚本、Dockerfile、Docker Compose、K8s 模板、env 示例 | 能讲清服务拆分和部署路径 | 缺真实集群灰度发布自动化 |
+| 部署 | vLLM 脚本、Dockerfile、Docker Compose、K8s 模板、env 示例、生产 preflight | 能讲清服务拆分和部署路径，并能机器检查关键生产配置 | 缺真实集群灰度发布自动化 |
 | 模型治理 | model/prompt/rubric/schema/postprocess 版本、灰度/A/B 配置、人审治理文档 | 具备版本追溯和上线治理意识 | 缺模型注册、审批和真实 A/B 平台 |
 
 ## 已增强项
@@ -46,6 +46,7 @@
 - CLI 增加 `readiness-check`，可机器检查核心交付物、忽略规则和本机公开数据状态。
 - 文档补齐公开数据接入、API 安全配置和本地 UTF-8 locale 要求。
 - 新增 GitHub Actions `enterprise-check`，push/PR 自动运行测试、编译、交付摘要和 readiness-check。
+- 新增 `production-preflight`，上线前检查鉴权、CORS、审计、限流和请求大小配置。
 
 ## 机器验收
 

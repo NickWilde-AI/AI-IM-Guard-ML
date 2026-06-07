@@ -86,6 +86,24 @@ docker compose -f deploy/docker-compose.example.yml down
 
 Compose 示例会在 `IM_GUARD_MODEL_PATH` 指向的文件或目录存在时加载 checkpoint；如果路径为空或不存在，则自动使用启发式 demo Judge，避免没有模型文件时服务无法启动。API 服务包含 `/ready` healthcheck。
 
+生产化环境变量 preflight：
+
+```bash
+PYTHONPATH=src im-guard --config configs/default.yaml production-preflight \
+  --env-file deploy/audit_service.prod.env.example \
+  --out outputs/production_preflight.json
+```
+
+该检查会验证：
+
+- API 鉴权是否开启。
+- token hash 是否为合法 SHA-256 格式。
+- CORS 是否不是 wildcard。
+- 审计后端和审计路径是否配置。
+- 请求大小限制和基础限流是否开启。
+
+示例 `prod.env` 里的全零 hash 只用于模板占位，preflight 会返回 `warn`，真实部署前必须替换。
+
 K8s 模板：
 
 ```bash

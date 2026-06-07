@@ -48,6 +48,11 @@ def main(argv: list[str] | None = None) -> int:
     p_api_contract.add_argument("--out", default="outputs/openapi_contract.json")
     p_api_contract.add_argument("--fail-on-missing", action="store_true")
 
+    p_preflight = sub.add_parser("production-preflight")
+    p_preflight.add_argument("--env-file", default="deploy/audit_service.prod.env.example")
+    p_preflight.add_argument("--out", default="outputs/production_preflight.json")
+    p_preflight.add_argument("--fail-on-warn", action="store_true")
+
     p_delivery = sub.add_parser("delivery-summary")
     p_delivery.add_argument("--out", default="outputs/enterprise_delivery_summary.md")
     p_delivery.add_argument("--project-root", default=".")
@@ -172,6 +177,16 @@ def main(argv: list[str] | None = None) -> int:
         Path(args.out).write_text(json.dumps(contract, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(args.out)
         if args.fail_on_missing and contract["x-im-guard-contract-status"]["status"] != "pass":
+            return 1
+        return 0
+    if args.cmd == "production-preflight":
+        from .preflight import build_production_preflight
+
+        report = build_production_preflight(args.env_file)
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(args.out)
+        if report["status"] == "fail" or (args.fail_on_warn and report["status"] == "warn"):
             return 1
         return 0
     if args.cmd == "delivery-summary":

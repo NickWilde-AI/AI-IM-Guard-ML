@@ -10,7 +10,7 @@ XGUARD_RAW ?= data/external/xguard_train_open_200k.jsonl
 XGUARD_TRAIN ?= data/train/xguard_public_train.jsonl
 XGUARD_SPLITS ?= data/train/xguard_splits
 
-.PHONY: summary predict predict-route eval monitor alerts window-alerts drift-report ab-report api-contract audit-data build-demo download-xguard build-xguard audit-xguard eval-report delivery-summary readiness-check enterprise-check compile clean serve simulator demo test
+.PHONY: summary predict predict-route eval monitor alerts window-alerts drift-report ab-report api-contract production-preflight audit-data build-demo download-xguard build-xguard audit-xguard eval-report delivery-summary readiness-check enterprise-check compile clean serve simulator demo test
 
 summary:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) summary $(SAMPLE)
@@ -45,6 +45,10 @@ api-contract:
 	mkdir -p $(OUT_DIR)
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) api-contract --out $(OUT_DIR)/openapi_contract.json --fail-on-missing
 
+production-preflight:
+	mkdir -p $(OUT_DIR)
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) production-preflight --env-file deploy/audit_service.prod.env.example --out $(OUT_DIR)/production_preflight.json
+
 audit-data:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) audit-data $(SAMPLE)
 
@@ -71,7 +75,7 @@ delivery-summary:
 readiness-check:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) readiness-check --project-root . --out $(OUT_DIR)/readiness_check.json
 
-enterprise-check: test compile api-contract delivery-summary readiness-check
+enterprise-check: test compile api-contract production-preflight delivery-summary readiness-check
 
 compile:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m compileall -q src

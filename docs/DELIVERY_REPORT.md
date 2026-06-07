@@ -20,6 +20,7 @@
 - 机器可读 readiness-check，检查交付物、忽略规则和本机公开数据状态。
 - GitHub Actions 企业验收门禁，自动运行测试、编译、交付摘要和 readiness-check。
 - OpenAPI 契约导出与关键接口缺失检查，防止核心 API 被误删或改名。
+- 生产环境变量 preflight，检查鉴权、CORS、限流、请求大小和审计配置。
 - 模型卡、实验报告、rubric、标注规范。
 - 简历 bullet、面试叙事、深挖问答、自检清单。
 
@@ -49,6 +50,7 @@
 | `reporting.py` | 离线评测报告、交付摘要和 readiness-check |
 | `api.py` | FastAPI 服务入口 |
 | `api_contract.py` | OpenAPI 契约导出和关键接口校验 |
+| `preflight.py` | 生产环境变量上线前自检 |
 | `cli.py` | 命令行总入口 |
 
 ## 3. 配置与样例

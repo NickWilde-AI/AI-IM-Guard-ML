@@ -23,6 +23,7 @@ PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml window-a
 PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml drift-report outputs/demo_routed_predictions.jsonl --baseline-pred-jsonl outputs/demo_routed_predictions.jsonl --out outputs/drift_report.json
 PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml ab-report --control outputs/demo_routed_predictions.jsonl --candidate outputs/demo_routed_predictions.jsonl --out outputs/ab_report.md --json-out outputs/ab_report.json
 PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml api-contract --out outputs/openapi_contract.json --fail-on-missing
+PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml production-preflight --env-file deploy/audit_service.prod.env.example --out outputs/production_preflight.json
 PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml audit-data data/samples/sample_cases.jsonl
 ```
 
@@ -39,6 +40,7 @@ make window-alerts
 make drift-report
 make ab-report
 make api-contract
+make production-preflight
 make audit-data
 make build-demo
 make download-xguard
@@ -224,7 +226,7 @@ python -m pip install -e ".[dev,serve]"
 make enterprise-check
 ```
 
-CI 会上传 `outputs/openapi_contract.json`、`outputs/enterprise_delivery_summary.md` 和 `outputs/readiness_check.json` 作为 artifact。workflow 使用 Node 24 兼容的官方 Actions major 版本，并显式启用 Node 24 运行时兼容开关，避免未来 runner 默认升级时门禁失效。CI 不下载 XGuard 大数据；大数据只保留在本地忽略目录。
+CI 会上传 `outputs/openapi_contract.json`、`outputs/production_preflight.json`、`outputs/enterprise_delivery_summary.md` 和 `outputs/readiness_check.json` 作为 artifact。workflow 使用 Node 24 兼容的官方 Actions major 版本，并显式启用 Node 24 运行时兼容开关，避免未来 runner 默认升级时门禁失效。CI 不下载 XGuard 大数据；大数据只保留在本地忽略目录。
 
 ## 轻量压力测试
 
