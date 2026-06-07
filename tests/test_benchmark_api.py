@@ -53,6 +53,27 @@ def test_run_benchmark_excludes_warmup_from_reported_requests():
     assert calls[3:] == ["bench-local-00000", "bench-local-00001"]
 
 
+def test_run_benchmark_concurrent_mode():
+    benchmark = _load_benchmark_module()
+
+    def fake_post(_url: str, payload: dict, _token: str, _timeout: float):
+        return 200, 15.0
+
+    result = benchmark.run_benchmark(
+        "http://127.0.0.1:8000/judge",
+        10,
+        warmup=0,
+        concurrency=5,
+        post_fn=fake_post,
+    )
+
+    assert result["requests"] == 10
+    assert result["concurrency"] == 5
+    assert result["success_rate"] == 1.0
+    assert result["status_counts"] == {"200": 10}
+    assert result["latency_ms"]["p50"] == 15.0
+
+
 def test_main_writes_report_and_fails_when_p95_exceeds_threshold(tmp_path, monkeypatch):
     benchmark = _load_benchmark_module()
     out = tmp_path / "api_benchmark.json"

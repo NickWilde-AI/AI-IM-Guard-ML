@@ -363,7 +363,18 @@ def create_app(config_path: str = "configs/default.yaml", model_path: str | None
     @app.get("/config")
     def config(request: Request) -> dict:
         require_permission(request, "config")
-        return {"config_path": str(Path(config_path).resolve()), "topics": cfg.get("labels", {}).get("topics", [])}
+        labels = cfg.get("labels", {})
+        return {
+            "config_path": str(Path(config_path).resolve()),
+            "topics": labels.get("topics", []),
+            "risk_levels": labels.get("risk_levels", []),
+            "judgments": labels.get("judgments", []),
+            "handling_suggestions": labels.get("handling_suggestions", []),
+            "alert_thresholds": cfg.get("alert_thresholds", ),
+            "rubrics": {k: v for k, v in cfg.get("rubrics", {}).items()},
+            "model": cfg.get("model", {}),
+            **versions.to_dict(),
+        }
 
     static_dir = Path(__file__).parent.parent.parent / "static"
     if static_dir.exists():

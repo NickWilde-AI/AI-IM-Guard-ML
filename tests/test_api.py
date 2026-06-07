@@ -199,3 +199,22 @@ def test_metrics_include_topic_risk_handling_and_route_labels(monkeypatch, tmp_p
     assert "im_guard_requests_by_topic_total" in text
     assert "im_guard_requests_by_handling_total" in text
     assert "im_guard_requests_by_route_total" in text
+
+
+def test_config_endpoint_returns_full_introspection(monkeypatch, tmp_path):
+    monkeypatch.delenv("IM_GUARD_API_TOKEN", raising=False)
+    monkeypatch.setenv("IM_GUARD_AUDIT_LOG_PATH", str(tmp_path / "audit.jsonl"))
+    client = TestClient(create_app())
+
+    response = client.get("/config")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert "config_path" in body
+    assert "topics" in body and len(body["topics"]) > 0
+    assert "risk_levels" in body
+    assert "handling_suggestions" in body
+    assert "alert_thresholds" in body
+    assert "rubrics" in body
+    assert "model" in body
+    assert "model_version" in body
