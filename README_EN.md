@@ -10,7 +10,7 @@
 [![enterprise-check](https://github.com/NickWilde-AI/AI-IM-Guard-ML/actions/workflows/ci.yml/badge.svg)](https://github.com/NickWilde-AI/AI-IM-Guard-ML/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-AI-IM-Guard-ML is a production-oriented showcase project for IM safety review. It combines chat evidence, behavioral signals, LLM Judge training, policy routing, audit trails, monitoring, model governance, and deployment templates into one reproducible ML engineering system.
+AI-IM-Guard-ML is an enterprise ML engineering project for IM private-message safety review. It combines chat evidence, behavioral signals, LLM Judge training, policy routing, audit trails, monitoring, model governance, and deployment templates into one runnable, extensible system.
 
 [中文](README.md) · [Quick Start](#quick-start) · [Architecture](#architecture) · [Training](#training) · [Enterprise Checks](#enterprise-checks) · [Docs](#documentation)
 
@@ -20,7 +20,7 @@ AI-IM-Guard-ML is a production-oriented showcase project for IM safety review. I
 
 ## Why This Exists
 
-Most content-safety demos stop at a text classifier: `safe` or `unsafe`.
+Many content-safety systems stop at a text classifier: `safe` or `unsafe`.
 
 Real IM risk review is messier. A production system needs to decide:
 
@@ -42,14 +42,14 @@ IM case
   -> audit / metrics / feedback loop
 ```
 
-The goal is not to pretend this repository contains real company data or an online production checkpoint. The goal is to demonstrate how an enterprise-grade IM risk model project should be designed, trained, evaluated, served, monitored, and explained.
+This repository provides a system that can be started locally, extended by engineers, and connected to business data. The engineering path covers data, training, evaluation, API serving, audit, monitoring, deployment, and governance. Model quality can be advanced by connecting GPU training, private labels, and production checkpoints.
 
 ## Highlights
 
 | Area | What is implemented |
 | --- | --- |
 | Multi-evidence review | Chat messages, scenario fields, behavior abnormalities, and structured labels |
-| LLM Judge | Heuristic demo Judge plus Transformers/SFT checkpoint path |
+| LLM Judge | Local rule-based baseline Judge plus Transformers/SFT checkpoint path |
 | Training pipeline | Completion-only SFT, LoRA/PEFT config, public-data field loss masking |
 | Data governance | XGuard public dataset ingestion, conservative label mapping, split/audit checks |
 | Decision safety | JSON parsing fallback, label validation, strong-action guardrails, policy routing |
@@ -66,7 +66,7 @@ The goal is not to pretend this repository contains real company data or an onli
 | Engineering framework | Complete | CLI, API, data, training, evaluation, monitoring, audit, deployment, CI |
 | Full training pipeline | Complete | Full-data fast training run finished and checkpoint saved locally |
 | Chinese model quality | In progress | Requires GPU or long MPS training for Qwen-based quality experiments |
-| Real production launch | Not claimed | No real company IM data, no online checkpoint, no real human-review platform |
+| Production integration | Extensible | Connect private data, trained checkpoints, and enterprise infrastructure for production rollout |
 
 Latest local full-pipeline training run:
 
@@ -100,14 +100,14 @@ IM review request
 | --- | --- | --- |
 | Access | Request handling, CLI, schema validation | `api.py`, `cli.py`, `schema.py` |
 | Evidence | Chat and behavior evidence rendering | `prompting.py`, `data_audit.py` |
-| Model | Heuristic demo, SFT training, checkpoint inference | `inference.py`, `training.py` |
+| Model | Local rule-based baseline, SFT training, checkpoint inference | `inference.py`, `training.py` |
 | Decision | JSON recovery, validation, action routing | `parsing.py`, `postprocess.py` |
 | Governance | Versioning, audit, monitoring, registry | `versioning.py`, `audit_store.py`, `monitoring.py`, `model_registry.py` |
 | Feedback | Evaluation and hard-case refinement | `evaluation.py`, `refinement.py` |
 
 ## Quick Start
 
-Local demo does not require a GPU or a real fine-tuned checkpoint. It uses a deterministic heuristic Judge to run the full engineering loop.
+Local startup does not require a GPU or a fine-tuned checkpoint. The system uses a deterministic local baseline Judge to run the full engineering loop so developers can immediately validate API, routing, audit, monitoring, and evaluation flows.
 
 ```bash
 git clone https://github.com/NickWilde-AI/AI-IM-Guard-ML.git
@@ -135,9 +135,9 @@ Submit a review request:
 ```bash
 curl -X POST http://127.0.0.1:8000/judge \
   -H "Content-Type: application/json" \
-  -H "X-Request-ID: interview-demo-1" \
+  -H "X-Request-ID: local-run-1" \
   -d '{
-    "ticket_id": "interview-demo-1",
+    "ticket_id": "local-run-1",
     "chat_evidence_list": ["加微信稳赚，带你投资。"],
     "behavior_abnormal_list": ["短时间高频私聊。"]
   }'
@@ -255,9 +255,9 @@ GitHub Actions runs the same enterprise gate on push and pull request.
 ```text
 .
 ├── configs/                 # model, training, registry, rollout configs
-├── data/samples/            # small demo review cases
+├── data/samples/            # small sample review cases
 ├── deploy/                  # Docker, vLLM, env templates, deployment examples
-├── docs/                    # architecture, operations, training, interview docs
+├── docs/                    # architecture, operations, training, governance docs
 ├── scripts/                 # dataset download and API benchmark scripts
 ├── src/im_guard_ml/         # core Python package
 ├── tests/                   # unit, contract, readiness, and governance tests
@@ -279,21 +279,20 @@ GitHub Actions runs the same enterprise gate on push and pull request.
 | Production readiness | [docs/ENTERPRISE_READINESS_REVIEW.md](docs/ENTERPRISE_READINESS_REVIEW.md) |
 | Deployment and operations | [docs/DEPLOYMENT_AND_OPERATIONS.md](docs/DEPLOYMENT_AND_OPERATIONS.md) |
 | SLO and alerting | [docs/SLO_AND_ALERTING.md](docs/SLO_AND_ALERTING.md) |
-| Interview demo | [docs/OFFER_DEMO_SCRIPT.md](docs/OFFER_DEMO_SCRIPT.md) |
-| Defense Q&A | [docs/OFFER_DEFENSE_QA.md](docs/OFFER_DEFENSE_QA.md) |
+| Model governance | [docs/MODEL_GOVERNANCE_PLAYBOOK.md](docs/MODEL_GOVERNANCE_PLAYBOOK.md) |
 
-## Production Boundary
+## Production Integration
 
-This repository includes public-data ingestion, training code, API serving, audit logs, monitoring, deployment templates, and governance checks. It intentionally does not include:
+This repository includes public-data ingestion, training code, API serving, audit logs, monitoring, deployment templates, and governance checks. For real business rollout, teams usually connect or replace:
 
-- real company IM private messages, appeals, review tickets, or user data;
-- a real production Qwen checkpoint;
-- a real enterprise gateway, secret rotation system, centralized audit warehouse, or human-review platform;
-- a claim that the model is already live in production.
+- private IM labels, appeals, review tickets, and online feedback samples;
+- a formally trained and evaluated Qwen or comparable model checkpoint;
+- enterprise gateway, secret rotation, centralized audit warehouse, and human-review platform;
+- online canary, A/B testing, rollback, and continuous monitoring workflows.
 
 Recommended positioning:
 
-> Production-oriented showcase project, enterprise ML engineering framework, and a review system ready to connect with real business data and a trained checkpoint.
+> An enterprise-oriented IM risk review engineering framework that can run locally immediately and can be connected to real business data, trained checkpoints, and production infrastructure.
 
 ## License
 
