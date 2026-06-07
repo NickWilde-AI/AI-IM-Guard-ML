@@ -54,6 +54,8 @@ def test_build_readiness_check_warns_when_only_local_data_missing(tmp_path):
         "docs/PUBLIC_DATASET_XGUARD.md",
         "docs/ENTERPRISE_READINESS_REVIEW.md",
         "docs/TRAINING_AND_EVALUATION.md",
+        "src/im_guard_ml/training_readiness.py",
+        "tests/test_training_readiness.py",
         "docs/HUMAN_REVIEW_AND_ROLLOUT.md",
         "docs/SLO_AND_ALERTING.md",
         "docs/DEPLOYMENT_AND_OPERATIONS.md",

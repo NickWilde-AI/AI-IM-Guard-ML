@@ -70,6 +70,12 @@ def main(argv: list[str] | None = None) -> int:
     p_train = sub.add_parser("train")
     p_train.add_argument("train_jsonl_or_dataset")
 
+    p_train_ready = sub.add_parser("train-readiness")
+    p_train_ready.add_argument("train_jsonl")
+    p_train_ready.add_argument("--out", default="outputs/training_readiness.json")
+    p_train_ready.add_argument("--max-scan-rows", type=int)
+    p_train_ready.add_argument("--fail-on-warn", action="store_true")
+
     p_monitor = sub.add_parser("monitor")
     p_monitor.add_argument("prediction_jsonl")
     p_monitor.add_argument("--baseline-json")
@@ -228,6 +234,20 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.cmd == "train":
         run_sft(cfg, args.train_jsonl_or_dataset, cfg.get("rubrics", {}))
+        return 0
+    if args.cmd == "train-readiness":
+        from .training_readiness import build_training_readiness_report
+
+        report = build_training_readiness_report(
+            args.train_jsonl,
+            config_path=args.config,
+            max_scan_rows=args.max_scan_rows,
+        )
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(args.out)
+        if report["status"] == "fail" or (args.fail_on_warn and report["status"] == "warn"):
+            return 1
         return 0
     if args.cmd == "monitor":
         from .monitoring import build_monitoring_report, compare_reports

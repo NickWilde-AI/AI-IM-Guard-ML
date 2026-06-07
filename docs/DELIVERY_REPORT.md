@@ -14,6 +14,7 @@
 - JSON 解析、后处理、策略路由。
 - 数据构造、数据审计、refinement。
 - 训练评测闭环、评测报告、监控、滑动窗口异常检测、drift 检测、告警。
+- 训练前 readiness，检查数据、依赖、硬件和公开数据强处置污染。
 - 版本追踪、审计日志。
 - vLLM 部署、Docker、Compose、K8s、服务配置、灰度和事故 runbook。
 - API 使用说明、鉴权、最小 RBAC、SQLite 审计、脱敏摘要、轻量压测门禁和 SLO/Prometheus 告警。
@@ -34,6 +35,7 @@
 | `schema.py` | 审核输入输出协议、枚举、标签一致性校验 |
 | `prompting.py` | prompt 模板、训练/推理渲染 |
 | `training.py` | Qwen SFT 训练入口，completion-only loss |
+| `training_readiness.py` | 训练前置检查，输出依赖、硬件和数据防污染状态 |
 | `inference.py` | 启发式 demo Judge 与 Transformers Judge |
 | `parsing.py` | JSON 截取、解析、正则兜底 |
 | `postprocess.py` | 生产后处理、冲突修正、策略路由 |

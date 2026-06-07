@@ -11,6 +11,8 @@ REQUIRED_DELIVERY_FILES = {
     "公开数据接入说明": "docs/PUBLIC_DATASET_XGUARD.md",
     "企业成熟度评审": "docs/ENTERPRISE_READINESS_REVIEW.md",
     "训练与评测流程": "docs/TRAINING_AND_EVALUATION.md",
+    "训练前 readiness": "src/im_guard_ml/training_readiness.py",
+    "训练前 readiness 测试": "tests/test_training_readiness.py",
     "人审与灰度治理": "docs/HUMAN_REVIEW_AND_ROLLOUT.md",
     "SLO 与告警": "docs/SLO_AND_ALERTING.md",
     "部署和运维说明": "docs/DEPLOYMENT_AND_OPERATIONS.md",

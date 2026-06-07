@@ -132,10 +132,33 @@ PYTHONPATH=src python3 -m im_guard_ml.cli --config configs/default.yaml \
 pip install -e ".[train]"
 ```
 
+训练前先跑 readiness：
+
+```bash
+make train-readiness
+```
+
+或直接指定训练集：
+
+```bash
+LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 \
+im-guard --config configs/default.yaml train-readiness \
+  data/train/xguard_splits/train.jsonl \
+  --out outputs/training_readiness.json
+```
+
+`train-readiness` 会检查：
+
+- 训练 JSONL 是否存在、是否有样本。
+- `public_binary` 是否产生了 `limit_account / ban_account` 强处置污染。
+- `torch / transformers / datasets / trl / peft` 等训练依赖是否安装。
+- 当前环境是否有 CUDA/MPS/CPU，以及默认模型是否适合当前硬件。
+
 启动 SFT：
 
 ```bash
-PYTHONPATH=src im-guard --config configs/default.yaml train data/train/im_audit_train.jsonl
+LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 \
+im-guard --config configs/default.yaml train data/train/xguard_splits/train.jsonl
 ```
 
 训练入口：[src/im_guard_ml/training.py](../src/im_guard_ml/training.py)
@@ -146,6 +169,8 @@ PYTHONPATH=src im-guard --config configs/default.yaml train data/train/im_audit_
 - LoRA/PEFT：通过 `configs/default.yaml` 的 `training.peft` 开启。
 - `enable_field_loss_mask`：保留字段级 loss mask 扩展能力。
 - `bf16` 和 `gradient_checkpointing`：控制显存与吞吐。
+
+当前默认 `configs/default.yaml` 使用 `Qwen/Qwen3.5-27B-Base`，完整 SFT 需要 GPU 训练环境。本地 Mac 或无 GPU 环境适合跑数据构建、审计、readiness 和小模型 smoke test，不适合直接完整训练 27B。
 
 LoRA 示例：
 

@@ -13,7 +13,7 @@ BENCHMARK_REQUESTS ?= 100
 BENCHMARK_CONCURRENCY ?= 1
 BENCHMARK_P95_MS ?= 1200
 
-.PHONY: summary predict predict-route eval monitor alerts window-alerts drift-report ab-report api-contract production-preflight model-registry-check audit-data build-demo download-xguard build-xguard audit-xguard eval-report delivery-summary readiness-check benchmark-api benchmark-stress enterprise-check compile clean serve simulator demo test
+.PHONY: summary predict predict-route eval monitor alerts window-alerts drift-report ab-report api-contract production-preflight model-registry-check audit-data build-demo download-xguard build-xguard audit-xguard train-readiness eval-report delivery-summary readiness-check benchmark-api benchmark-stress enterprise-check compile clean serve simulator demo test
 
 summary:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) summary $(SAMPLE)
@@ -72,6 +72,10 @@ build-xguard:
 
 audit-xguard:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) audit-data $(XGUARD_TRAIN)
+
+train-readiness:
+	mkdir -p $(OUT_DIR)
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) train-readiness $(XGUARD_SPLITS)/train.jsonl --out $(OUT_DIR)/training_readiness.json
 
 eval-report: predict-route
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m im_guard_ml.cli --config $(CONFIG) eval-report $(OUT_DIR)/demo_routed_predictions.jsonl --out $(OUT_DIR)/offline_eval_report.md

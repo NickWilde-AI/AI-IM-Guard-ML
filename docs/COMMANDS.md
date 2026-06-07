@@ -219,6 +219,14 @@ PYTHONPATH=src python3 -m im_guard_ml.cli readiness-check --project-root . --out
 
 `readiness-check` 会检查核心交付物、`.gitignore` 中的大数据忽略规则、本机 XGuard 下载与转换文件。仓库核心交付物缺失会返回失败；本机大数据文件缺失只返回 warn，因为这些文件不应提交到 git。
 
+训练前检查：
+
+```bash
+make train-readiness
+```
+
+`train-readiness` 会生成 `outputs/training_readiness.json`，检查训练集、公开数据强处置污染、训练依赖和硬件条件。当前默认 27B 配置需要 GPU 训练环境；无 GPU 本机可以完成数据审计和训练前置验收，但不适合直接完整 SFT。
+
 ## GitHub CI
 
 仓库包含 `.github/workflows/ci.yml`，会在 push 和 pull request 时运行：
