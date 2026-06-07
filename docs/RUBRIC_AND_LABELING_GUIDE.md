@@ -58,7 +58,7 @@
 
 ## 5. 11 类主题 rubric
 
-详细配置见 [configs/rubrics.yaml](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/configs/rubrics.yaml)。面试讲解时不需要背 47 个子主题，但要能举 2 到 3 个典型例子。
+详细配置见 [configs/rubrics.yaml](../configs/rubrics.yaml)。面试讲解时不需要背 47 个子主题，但要能举 2 到 3 个典型例子。
 
 ### 5.1 代刷/包榜
 
@@ -134,4 +134,3 @@
 可以这样说：
 
 “我没有把违规当成一个粗粒度标签，而是先和业务运营一起把 11 类主题拆成 47 个子主题，每个子主题写 low/mid/high rubric。标注员看到的是聊天证据、行为摘要和异常行为三段输入，独立标注 risk_level、final_judgment 和 handling_suggestion。对于 mid/low 分歧样本，我们用多数票和仲裁，并用 Fleiss Kappa、ordinal Krippendorff alpha 监控一致性。这样做的价值是把业务处置口径转成模型可学习的监督信号。”
-

@@ -103,7 +103,7 @@
 
 ## 7.1 模型注册与审批
 
-本仓库提供最小模型注册表：[configs/model_registry.yaml](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/configs/model_registry.yaml)
+本仓库提供最小模型注册表：[configs/model_registry.yaml](../configs/model_registry.yaml)
 
 注册表记录：
 

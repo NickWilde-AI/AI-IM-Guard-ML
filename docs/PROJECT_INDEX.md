@@ -4,67 +4,67 @@
 
 ## 1. 最推荐阅读顺序
 
-1. [PROJECT_FROM_ZERO_TO_ONE.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/PROJECT_FROM_ZERO_TO_ONE.md)
+1. [PROJECT_FROM_ZERO_TO_ONE.md](PROJECT_FROM_ZERO_TO_ONE.md)
    从业务背景、任务拆解、数据、模型、训练、上线完整理解项目。
 
-2. [PRODUCTION_SYSTEM_DESIGN.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/PRODUCTION_SYSTEM_DESIGN.md)
+2. [PRODUCTION_SYSTEM_DESIGN.md](PRODUCTION_SYSTEM_DESIGN.md)
    理解真实生产服务怎么拆，后处理、路由、版本、监控怎么接。
 
-3. [RUBRIC_AND_LABELING_GUIDE.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/RUBRIC_AND_LABELING_GUIDE.md)
+3. [RUBRIC_AND_LABELING_GUIDE.md](RUBRIC_AND_LABELING_GUIDE.md)
    理解 11 类主题、47 个子主题、low/mid/high 标注逻辑。
 
-4. [HUMAN_REVIEW_AND_ROLLOUT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/HUMAN_REVIEW_AND_ROLLOUT.md)
+4. [HUMAN_REVIEW_AND_ROLLOUT.md](HUMAN_REVIEW_AND_ROLLOUT.md)
    理解人审复核、灰度、A/B 和回滚 guardrail。
 
-5. [MODEL_CARD_AND_EXPERIMENT_REPORT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/MODEL_CARD_AND_EXPERIMENT_REPORT.md)
+5. [MODEL_CARD_AND_EXPERIMENT_REPORT.md](MODEL_CARD_AND_EXPERIMENT_REPORT.md)
    记住核心指标、基线、消融和上线红线。
 
-6. [TRAINING_AND_EVALUATION.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/TRAINING_AND_EVALUATION.md)
+6. [TRAINING_AND_EVALUATION.md](TRAINING_AND_EVALUATION.md)
    理解数据构建、训练、预测、评测报告、drift 和上线前检查。
 
-7. [DEPLOYMENT_AND_OPERATIONS.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DEPLOYMENT_AND_OPERATIONS.md)
+7. [DEPLOYMENT_AND_OPERATIONS.md](DEPLOYMENT_AND_OPERATIONS.md)
    准备部署、灰度、回滚、容量估算相关追问。
 
-8. [API_USAGE.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/API_USAGE.md)
+8. [API_USAGE.md](API_USAGE.md)
    理解 API 接口、鉴权、错误码、审计查询和压测入口。
 
-9. [DATA_QUALITY_AND_AUDIT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DATA_QUALITY_AND_AUDIT.md)
+9. [DATA_QUALITY_AND_AUDIT.md](DATA_QUALITY_AND_AUDIT.md)
    准备数据质量、标签冲突、训练/评测泄漏相关追问。
 
-10. [OFFER_DEMO_SCRIPT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/OFFER_DEMO_SCRIPT.md)
+10. [OFFER_DEMO_SCRIPT.md](OFFER_DEMO_SCRIPT.md)
    面试现场的 5 分钟演示路线、话术边界和高价值追问回答。
 
-11. [OFFER_DEFENSE_QA.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/OFFER_DEFENSE_QA.md)
+11. [OFFER_DEFENSE_QA.md](OFFER_DEFENSE_QA.md)
    准备“没有真实数据怎么办、是不是 demo、为什么值高薪”等高压问题。
 
-12. [DEEP_DIVE_QA.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DEEP_DIVE_QA.md)
+12. [DEEP_DIVE_QA.md](DEEP_DIVE_QA.md)
    背高频深挖问题的回答结构。
 
-13. [INTERVIEW_SPEAKING_SCRIPT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/INTERVIEW_SPEAKING_SCRIPT.md)
+13. [INTERVIEW_SPEAKING_SCRIPT.md](INTERVIEW_SPEAKING_SCRIPT.md)
    练习 20 秒、60 秒、2 分钟和 5 分钟的口语实战表达。
 
-14. [INTERVIEW_PLAYBOOK.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/INTERVIEW_PLAYBOOK.md)
+14. [INTERVIEW_PLAYBOOK.md](INTERVIEW_PLAYBOOK.md)
    最后压缩成 30 秒、2 分钟、5 分钟讲法。
 
-15. [FINAL_INTERVIEW_CHECKLIST.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/FINAL_INTERVIEW_CHECKLIST.md)
+15. [FINAL_INTERVIEW_CHECKLIST.md](FINAL_INTERVIEW_CHECKLIST.md)
    面试前 30 分钟做最终自检。
 
-16. [RESUME_AND_STORYLINE.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/RESUME_AND_STORYLINE.md)
+16. [RESUME_AND_STORYLINE.md](RESUME_AND_STORYLINE.md)
     简历 bullet、STAR 叙事和 1/3/5 分钟讲法。
 
-17. [COMMANDS.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/COMMANDS.md)
+17. [COMMANDS.md](COMMANDS.md)
     常用命令、Makefile 和部署入口。
 
-18. [INCIDENT_RUNBOOK.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/INCIDENT_RUNBOOK.md)
+18. [INCIDENT_RUNBOOK.md](INCIDENT_RUNBOOK.md)
     线上事故止血、排查和复盘。
 
-19. [SLO_AND_ALERTING.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/SLO_AND_ALERTING.md)
+19. [SLO_AND_ALERTING.md](SLO_AND_ALERTING.md)
     SLO、Prometheus 指标和告警规则。
 
-20. [DELIVERY_REPORT.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/DELIVERY_REPORT.md)
+20. [DELIVERY_REPORT.md](DELIVERY_REPORT.md)
     当前项目交付总清单。
 
-21. [SOURCE_DOC_COVERAGE.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/SOURCE_DOC_COVERAGE.md)
+21. [SOURCE_DOC_COVERAGE.md](SOURCE_DOC_COVERAGE.md)
     原始两份文档内容和当前工程的覆盖关系。
 
 ## 2. 面试必须讲清的 6 件事

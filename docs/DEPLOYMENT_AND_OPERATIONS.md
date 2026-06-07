@@ -27,7 +27,7 @@
 
 ## 3. vLLM 推理服务
 
-示例脚本：[deploy/vllm_serve.sh](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/deploy/vllm_serve.sh)
+示例脚本：[deploy/vllm_serve.sh](../deploy/vllm_serve.sh)
 
 关键参数：
 
@@ -114,7 +114,7 @@ kubectl apply -f deploy/k8s/deployment.yaml
 kubectl apply -f deploy/k8s/service.yaml
 ```
 
-说明：[deploy/k8s/README.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/deploy/k8s/README.md)
+说明：[deploy/k8s/README.md](../deploy/k8s/README.md)
 
 服务同时提供 Prometheus 文本格式指标：
 
@@ -178,7 +178,7 @@ kubectl rollout restart deployment/im-guard-api
 
 ## 7. 环境变量
 
-示例配置：[deploy/audit_service.env.example](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/deploy/audit_service.env.example)
+示例配置：[deploy/audit_service.env.example](../deploy/audit_service.env.example)
 
 重要变量：
 
@@ -199,7 +199,7 @@ kubectl rollout restart deployment/im-guard-api
 
 ## 8. 灰度配置
 
-灰度和 A/B 配置示例：[configs/rollout.yaml](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/configs/rollout.yaml)
+灰度和 A/B 配置示例：[configs/rollout.yaml](../configs/rollout.yaml)
 
 推荐灰度参数：
 

@@ -16,13 +16,13 @@ Fatal Python error: init_import_site: Failed to import the site module
 UnicodeDecodeError: 'ascii' codec can't decode byte 0xe6 ...
 ```
 
-另外，直接运行：
+早期还遇到过：
 
 ```bash
 python3 -m pytest -q
 ```
 
-也无法执行测试，因为当前默认的 Homebrew Python 3.14 环境里没有安装 `pytest`。
+无法执行测试的问题，原因是当时没有安装开发依赖。当前仓库已经在 `pyproject.toml` 声明了 `dev` extra，推荐用 `pip install -e ".[dev,serve]"` 建环境。
 
 ## 根因
 
@@ -33,10 +33,10 @@ LC_ALL="C"
 LC_CTYPE="C"
 ```
 
-而项目路径里包含中文字符：
+而项目路径里包含中文字符，例如：
 
 ```text
-/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML
+.../文稿/.../AI-IM-Guard-ML
 ```
 
 项目已经以 editable install 的方式安装到 `.venv`，这个绝对路径被写入了：
@@ -114,18 +114,15 @@ make summary
 
 ## 后续建议
 
-仓库里已经有 `tests/` 和 `make test`，但 `pyproject.toml` 目前没有声明测试或开发依赖。建议补一个轻量的 dev extra，方便新环境稳定运行测试：
+仓库已经声明开发依赖，推荐新环境直接安装：
 
-```toml
-[project.optional-dependencies]
-dev = [
-  "pytest>=8",
-]
+```bash
+pip install -e ".[dev,serve]"
 ```
 
 之后可以使用：
 
 ```bash
-pip install -e ".[dev]"
 make test
+make enterprise-check
 ```

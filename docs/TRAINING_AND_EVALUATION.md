@@ -32,7 +32,7 @@
 | 合成样本 | `synthetic` | 补长尾主题和边界案例 | 需要规则审计或人工抽检 |
 | hard case | `hard_case` | 回灌误判、灰区和事故样本 | 需要 committee 或人审确认 |
 
-XGuard 公开数据说明见：[PUBLIC_DATASET_XGUARD.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/PUBLIC_DATASET_XGUARD.md)
+XGuard 公开数据说明见：[PUBLIC_DATASET_XGUARD.md](PUBLIC_DATASET_XGUARD.md)
 
 ## 3. 下载与转换公开数据
 
@@ -138,7 +138,7 @@ pip install -e ".[train]"
 PYTHONPATH=src im-guard --config configs/default.yaml train data/train/im_audit_train.jsonl
 ```
 
-训练入口：[src/im_guard_ml/training.py](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/src/im_guard_ml/training.py)
+训练入口：[src/im_guard_ml/training.py](../src/im_guard_ml/training.py)
 
 关键设置：
 

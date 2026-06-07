@@ -18,7 +18,7 @@
 
 ## 2. 仓库实现
 
-对应代码：[src/im_guard_ml/data_audit.py](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/src/im_guard_ml/data_audit.py)
+对应代码：[src/im_guard_ml/data_audit.py](../src/im_guard_ml/data_audit.py)
 
 CLI：
 

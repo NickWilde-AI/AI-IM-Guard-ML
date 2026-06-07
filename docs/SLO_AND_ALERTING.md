@@ -23,7 +23,7 @@ API 暴露 `/metrics`，包含：
 
 ## 告警规则
 
-规则模板：[deploy/prometheus/im_guard_alerts.yaml](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/deploy/prometheus/im_guard_alerts.yaml)
+规则模板：[deploy/prometheus/im_guard_alerts.yaml](../deploy/prometheus/im_guard_alerts.yaml)
 
 接入示例：
 

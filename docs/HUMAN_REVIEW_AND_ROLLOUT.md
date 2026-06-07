@@ -25,7 +25,7 @@
 
 ## 灰度配置
 
-配置文件：[configs/rollout.yaml](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/configs/rollout.yaml)
+配置文件：[configs/rollout.yaml](../configs/rollout.yaml)
 
 推荐节奏：
 

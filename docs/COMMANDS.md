@@ -255,7 +255,7 @@ Prometheus 告警规则模板：
 kubectl apply -f deploy/prometheus/im_guard_alerts.yaml
 ```
 
-说明见：[SLO_AND_ALERTING.md](/Users/chenpeng/WorkSpace/文稿/Tencent/TencentCodeing/AI-IM-Guard-ML/docs/SLO_AND_ALERTING.md)
+说明见：[SLO_AND_ALERTING.md](SLO_AND_ALERTING.md)
 
 离线回放或批量预测结果的滑动窗口异常检测：
 
