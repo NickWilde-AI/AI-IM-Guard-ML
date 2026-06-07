@@ -17,7 +17,7 @@
 >
 > 所以我重新定义了任务：输入是 `audit_scene`、`chat_evidence_list`、`behavior_abnormal_list` 三段证据；输出不是简单二分类，而是 `risk_level`、`final_judgment`、`handling_suggestion`，再加关联分析和判定依据。这样下游策略、人审和监控都能消费。
 >
-> 工程上，我接入了公开 XGuard 数据，做了保守标签映射，避免公开二分类数据污染 ban 这种强处置；然后补了数据审计、训练入口、离线评测、API 鉴权、request_id、JSONL/SQLite 审计、Prometheus 指标、滑动窗口异常、drift 检测、Docker/K8s 和 readiness-check。
+> 工程上，我接入了公开 XGuard 数据，做了保守标签映射，避免公开二分类数据污染 ban 这种强处置；然后补了数据审计、训练入口、离线评测、API 鉴权、request_id、JSONL/SQLite 审计、Prometheus 指标、滑动窗口异常、drift 检测、OpenAPI 契约门禁、production preflight、模型注册表、API 轻量压测、Docker/K8s 和 readiness-check。
 >
 > 当前仓库是生产化展示版，不包含公司内部私聊数据和真实 checkpoint，但它完整保留了真实业务接入的工程骨架。
 
@@ -29,7 +29,7 @@
 >
 > 第二层是数据治理。我选了 Apache-2.0 的 XGuard 中文安全数据做公开安全底座，但它不是 IM 私聊真实数据，所以我做了保守映射：公开违规样本只转成 `mid_risk / warning`，不产生 `limit_account` 和 `ban_account`。同时加了字段缺失、标签非法、重复样本、训练评测泄漏和 PII 风险检查。
 >
-> 第三层是工程落地。API 支持 token 和最小 RBAC，响应和审计都有 request_id；审计可以写 JSONL 或 SQLite，并且只保存脱敏输入摘要；监控有 Prometheus 指标、窗口异常检测和 drift 报告；部署上有 Docker、Compose、K8s 和生产环境 env 示例。
+> 第三层是工程落地。API 支持 token 和最小 RBAC，响应和审计都有 request_id；审计可以写 JSONL 或 SQLite，并且只保存脱敏输入摘要；监控有 Prometheus 指标、窗口异常检测和 drift 报告；上线前有 OpenAPI 契约检查、production preflight、模型注册表检查和 API 轻量压测门禁；部署上有 Docker、Compose、K8s 和生产环境 env 示例。
 >
 > 所以这个项目不是想证明我已经有真实线上数据，而是证明我知道一个 LLM 风控审核系统从数据、训练、评测到上线治理应该怎么搭。
 
@@ -43,7 +43,7 @@
 4. 模型训练：completion-only SFT，多任务输出，LoRA 入口。
 5. 评测体系：binary、macro-F1、ban FPR、解析失败率、drift。
 6. API 工程：鉴权、request_id、限流、结构化错误、审计查询。
-7. 监控部署：Prometheus、window-alerts、drift-report、Docker/K8s。
+7. 监控部署：Prometheus、window-alerts、drift-report、API benchmark、Docker/K8s。
 8. 真实边界：当前是生产化展示，真实上线需要内部数据和企业平台。
 
 收束句：

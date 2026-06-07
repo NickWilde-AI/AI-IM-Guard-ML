@@ -23,7 +23,7 @@
 - 设计并开源 IM 私聊风控审核生产化展示项目，将文本二分类审核升级为语义证据 + 行为证据融合的多任务 LLM Judge，统一输出 `risk_level / final_judgment / handling_suggestion` 与解释依据。
 - 接入 Apache-2.0 的 XGuard 公开中文安全数据，设计到 IM 风控标签体系的保守映射，转换为项目 JSONL 训练格式，并补齐去重、train/val/test 拆分、标签合法性、泄漏和 PII 风险审计。
 - 实现 FastAPI 审核服务，支持 Bearer Token/RBAC、请求 ID、请求大小限制、基础限流、结构化错误、JSONL/SQLite 审计持久化、按 ticket 查询和脱敏输入摘要。
-- 补齐 Prometheus 指标、滑动窗口异常检测、drift 检测、离线评测报告、Docker/Compose/K8s 部署模板和企业级成熟度评审文档；测试从 77 个扩展到 107 个并通过 `enterprise-check`。
+- 补齐 Prometheus 指标、滑动窗口异常检测、drift 检测、离线评测报告、Docker/Compose/K8s 部署模板、API 轻量压测门禁、模型注册表和企业级成熟度评审文档；测试从最初 77 个扩展到 130+ 个并通过 `enterprise-check`。
 
 这版更适合 GitHub 作品集，不会把展示项目说成真实公司上线项目。
 
