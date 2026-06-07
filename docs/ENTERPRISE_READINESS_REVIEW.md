@@ -2,9 +2,9 @@
 
 ## 总体结论
 
-当前项目已经具备企业级风控审核系统的工程骨架：多证据输入、结构化输出、解析兜底、策略路由、评测、监控、告警、版本追踪、API 服务、部署模板和单元测试。它适合用于生产化展示、面试答辩和方案评审。
+当前项目已经具备企业级风控审核系统的工程骨架：多证据输入、结构化输出、解析兜底、策略路由、评测、监控、告警、版本追踪、API 服务、部署模板、契约门禁、生产 preflight、模型注册表和单元测试。它适合用于生产化展示、面试答辩和方案评审。
 
-但它仍不是完整生产系统。真实上线还需要内部业务数据、人工复核闭环、多实例持久化、限流、灰度、回滚、权限治理和长期监控。
+但它仍不是完整生产系统。真实上线还需要内部业务数据、人工复核闭环、多实例持久化、网关级限流、真实集群灰度、权限治理、集中审计和长期监控。
 
 ## 成熟度分级
 
@@ -12,7 +12,7 @@
 | --- | --- | --- | --- |
 | 数据 | 示例数据 + XGuard 公开数据接入 | 已有冷启动公开安全底座 | 缺真实 IM 私聊、申诉和人审样本 |
 | 训练 | SFT 入口、LoRA 配置、公开样本保守归一 | 能说明训练链路和标签防污染 | 缺真实训练/验证/测试拆分和线上回流 |
-| 测试 | 单元测试覆盖核心 schema、解析、后处理、评测、监控，GitHub Actions 自动运行 enterprise-check | 已补数据转换、API 安全测试和远端质量门禁 | 缺生产级压测、契约测试和多实例测试 |
+| 测试 | 单元测试覆盖核心 schema、解析、后处理、评测、监控、API 安全、契约检查、生产 preflight、模型注册表和轻量压测脚本，GitHub Actions 自动运行 enterprise-check | 已补数据转换、API 集成测试、OpenAPI 契约门禁、压测脚本测试和远端质量门禁 | 缺真实多实例压测、网关压测和长时间 soak test |
 | API | FastAPI、可选鉴权、request_id、请求限制、基础限流、审计落盘、OpenAPI 契约门禁 | 具备 demo 到服务化的关键桥梁，并能防止核心接口漂移 | 缺生产网关、租户隔离和网关级限流 |
 | 安全 | Bearer Token、SHA-256 token hash、常量时间比较、最小角色权限、CORS 配置、公开数据不训练强处置、审计脱敏摘要 | 展示级安全边界明确，避免在生产化模板中直接保存明文 token | 缺企业密钥轮换、租户隔离和网关级 PII 策略 |
 | 审计 | CLI 审计日志 + API JSONL/SQLite 审计后端 | 可追踪版本和处置结果，支持按 ticket 查询 | 缺归档、合规留存和跨实例集中查询 |
@@ -30,6 +30,7 @@
 - API 支持请求大小限制、基础限流、结构化错误、`/ready` 和按 `ticket_id` 查询审计事件。
 - API 支持 OpenAPI 契约导出和关键接口缺失检查，纳入 `enterprise-check`。
 - 新增 API 使用说明，覆盖接口表、鉴权、错误码、审计查询和压测入口。
+- 新增 `make benchmark-api` 和 `scripts/benchmark_api.py` 压测门禁，支持结果落盘、非 2xx 失败和 P95 延迟阈值检查。
 - API 审计支持 `jsonl` 与 `sqlite` 两种后端，SQLite 后端建表并按 `ticket_id` 索引查询。
 - 审计事件记录脱敏输入摘要、payload hash 和 PII 类型，不落完整原文证据。
 - Prometheus 指标增加风险等级、主题、处置建议和路由维度。
@@ -48,22 +49,27 @@
 - 新增 GitHub Actions `enterprise-check`，push/PR 自动运行测试、编译、交付摘要和 readiness-check。
 - 新增 `production-preflight`，上线前检查鉴权、CORS、审计、限流和请求大小配置。
 - 新增 `model-registry-check`，校验 stable/candidate、审批元数据、指标红线和回滚目标。
+- 新增压测脚本单元测试，覆盖成功率、延迟分位数、warmup 和阈值失败逻辑。
 
 ## 机器验收
 
 ```bash
 LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 make enterprise-check
 PYTHONPATH=src python3 -m im_guard_ml.cli readiness-check --project-root . --out outputs/readiness_check.json
+make serve
+make benchmark-api
 ```
 
 `readiness-check` 的 `fail` 表示仓库核心交付物或忽略规则缺失；`warn` 主要表示本机未下载或未转换 XGuard 大数据文件。公开数据属于本机外部数据，不应提交到 git。
+
+`make benchmark-api` 需要服务已启动，默认对 `/judge` 发送 100 次请求，生成 `outputs/api_benchmark.json`，并在非 2xx 响应或 P95 超过 1200ms 时失败。它是本地展示级性能门禁，不替代真实多实例压测。
 
 ## 下一阶段建议
 
 1. 引入真实或人工审核过的 IM 私聊样本，建立固定 eval set。
 2. 将 SQLite 审计升级为 PostgreSQL 或日志平台集中查询。
 3. 增加生产网关、密钥轮换和集中权限系统。
-4. 将 K8s 模板接入真实集群灰度发布和服务级压测。
+4. 将 K8s 模板接入真实集群灰度发布、网关压测、多实例压测和长时间 soak test。
 5. 将当前最小模型注册表接入企业模型注册、审批和 A/B 平台。
 
 ## 对外表述

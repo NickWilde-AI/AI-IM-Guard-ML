@@ -73,6 +73,7 @@ def test_build_readiness_check_warns_when_only_local_data_missing(tmp_path):
         "deploy/prometheus/im_guard_alerts.yaml",
         "scripts/download_xguard_dataset.py",
         "scripts/benchmark_api.py",
+        "tests/test_benchmark_api.py",
     ]
     for rel in required_files:
         path = tmp_path / rel

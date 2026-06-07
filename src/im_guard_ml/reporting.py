@@ -30,6 +30,7 @@ REQUIRED_DELIVERY_FILES = {
     "Prometheus 告警": "deploy/prometheus/im_guard_alerts.yaml",
     "XGuard 下载脚本": "scripts/download_xguard_dataset.py",
     "API 压测脚本": "scripts/benchmark_api.py",
+    "API 压测脚本测试": "tests/test_benchmark_api.py",
 }
 
 EXPECTED_GITIGNORE_ENTRIES = ["data/external/", "data/train/", "outputs/"]
@@ -151,6 +152,7 @@ def build_delivery_summary(project_root: str | Path = ".") -> str:
             "- FastAPI 鉴权、最小 RBAC、请求大小限制、基础限流、结构化错误、ready 检查。",
             "- JSONL/SQLite 审计持久化、按 ticket 查询、输入摘要和 PII 脱敏。",
             "- Prometheus 指标、SLO、告警规则、轻量压测脚本。",
+            "- API 契约门禁、生产 preflight、模型注册表校验和 API 轻量压测门禁。",
             "- Docker、Compose、K8s 模板、人审复核、灰度/A/B 和回滚治理文档。",
             "",
             "## 仍需真实生产平台补齐",
