@@ -170,7 +170,27 @@ im-guard --config configs/default.yaml train data/train/xguard_splits/train.json
 - `enable_field_loss_mask`：保留字段级 loss mask 扩展能力。
 - `bf16` 和 `gradient_checkpointing`：控制显存与吞吐。
 
-当前默认 `configs/default.yaml` 使用 `Qwen/Qwen3.5-27B-Base`，完整 SFT 需要 GPU 训练环境。本地 Mac 或无 GPU 环境适合跑数据构建、审计、readiness 和小模型 smoke test，不适合直接完整训练 27B。
+当前默认 `configs/default.yaml` 使用公开可访问的 `Qwen/Qwen2.5-7B-Instruct`，完整 SFT 仍需要 GPU 训练环境。本地 Mac 或无 GPU 环境适合跑数据构建、审计、readiness 和小模型 smoke/full-pipeline run，不适合直接完成高质量 7B SFT。
+
+本机 MPS LoRA 示例：
+
+```bash
+LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 \
+PYTHONPATH=src im-guard --config configs/local_mps_train.yaml \
+  train data/train/xguard_splits/train.jsonl
+```
+
+该配置使用 `Qwen/Qwen2.5-0.5B-Instruct`，可以验证真实 Qwen 训练链路，但在 16GB Mac 上完整一轮约为几十小时级，更适合作为隔夜任务或迁移到 CUDA 机器。
+
+本机快速完整链路训练：
+
+```bash
+LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 \
+PYTHONPATH=src im-guard --config configs/local_fast_full_train.yaml \
+  train data/train/xguard_splits/train.jsonl
+```
+
+该配置使用 `sshleifer/tiny-gpt2` 跑完整训练集，目标是证明数据、tokenize、completion mask、TRL Trainer 和 checkpoint 保存链路可执行。它不是中文 IM 风控质量模型，不能用来宣称识别精度。
 
 LoRA 示例：
 

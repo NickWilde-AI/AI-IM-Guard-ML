@@ -1,8 +1,6 @@
 """Tests for training module (field-level loss masking)."""
 
-import pytest
-
-from im_guard_ml.training import _normalize_public_binary_labels, FieldLevelMaskCollator
+from im_guard_ml.training import _normalize_public_binary_labels, FieldLevelMaskCollator, tokenize_training_case
 
 
 class TestNormalizePublicBinaryLabels:
@@ -64,3 +62,43 @@ class TestNormalizePublicBinaryLabels:
         }
         result = _normalize_public_binary_labels(case)
         assert result["label"]["handling_suggestion"] == "ban_account"
+
+
+class ToyTokenizer:
+    pad_token_id = 0
+
+    def encode(self, text, add_special_tokens=False):
+        return [ord(ch) for ch in text]
+
+    def __call__(self, text, add_special_tokens=False, return_offsets_mapping=False):
+        body = {"input_ids": [ord(ch) for ch in text]}
+        if return_offsets_mapping:
+            body["offset_mapping"] = [(i, i + 1) for i in range(len(text))]
+        return body
+
+
+def test_tokenize_public_binary_masks_public_risk_and_handling_fields():
+    case = _normalize_public_binary_labels(
+        {
+            "task_type": "public_binary",
+            "audit_scene": {},
+            "chat_evidence_list": [],
+            "behavior_abnormal_list": [],
+            "label": {
+                "risk_level": "high_risk",
+                "final_judgment": "exist_violation",
+                "handling_suggestion": "ban_account",
+                "topic": "诈骗引流",
+            },
+        }
+    )
+
+    tokenized = tokenize_training_case(case, tokenizer=ToyTokenizer(), rubrics={}, enable_field_mask=True)
+    text = "".join(chr(i) for i in tokenized["input_ids"])
+    risk_start = text.rindex('"risk_level"')
+    handling_start = text.rindex('"handling_suggestion"')
+    final_start = text.rindex('"final_judgment"')
+
+    assert tokenized["completion_mask"][risk_start] == 0
+    assert tokenized["completion_mask"][handling_start] == 0
+    assert tokenized["completion_mask"][final_start] == 1

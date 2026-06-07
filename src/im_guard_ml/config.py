@@ -2,7 +2,7 @@ from __future__ import annotations
 
 DEFAULT_CONFIG = {
     "model": {
-        "base_model": "Qwen/Qwen3.5-27B-Base",
+        "base_model": "Qwen/Qwen2.5-7B-Instruct",
         "max_seq_length": 8192,
         "max_new_tokens": 384,
         "do_sample": False,

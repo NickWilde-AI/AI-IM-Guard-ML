@@ -4,10 +4,7 @@ import json
 import re
 from typing import Any
 
-from .prompting import RESPONSE_PREFIX, render_train_text
-
-# JSON field names that public_binary samples should NOT contribute loss to.
-_MASKED_FIELDS_FOR_PUBLIC = {"risk_level", "handling_suggestion"}
+from .prompting import INFER_TEMPLATE, render_assistant_label, render_user_prompt
 
 # Regex to locate JSON field spans: captures "field_name": "field_value"
 _FIELD_PATTERN = re.compile(
@@ -18,7 +15,8 @@ _FIELD_PATTERN = re.compile(
 def run_sft(config: dict[str, Any], dataset_name_or_path: str, rubrics: dict[str, str]) -> None:
     from datasets import load_dataset
     from transformers import AutoTokenizer
-    from trl import DataCollatorForCompletionOnlyLM, SFTConfig, SFTTrainer
+    from trl import SFTConfig, SFTTrainer
+    from trl.trainer.sft_trainer import DataCollatorForLanguageModeling
 
     model_name = config["model"]["base_model"]
     train_cfg = config["training"]
@@ -34,22 +32,22 @@ def run_sft(config: dict[str, Any], dataset_name_or_path: str, rubrics: dict[str
     # Normalize public labels conservatively as a safety net (belt & suspenders)
     raw = raw.map(_normalize_public_binary_labels)
 
-    def formatting_fn(batch: dict[str, list[Any]]) -> list[str]:
-        texts: list[str] = []
-        for i in range(len(batch["audit_scene"])):
-            case = {k: batch[k][i] for k in batch}
-            texts.append(render_train_text(case, rubrics))
-        return texts
-
     enable_field_mask = train_cfg.get("enable_field_loss_mask", True)
-    if enable_field_mask:
-        collator = FieldLevelMaskCollator(
-            response_template=RESPONSE_PREFIX,
+    tokenized = raw.map(
+        lambda case: tokenize_training_case(
+            case,
             tokenizer=tokenizer,
-            formatting_func=formatting_fn,
-        )
-    else:
-        collator = DataCollatorForCompletionOnlyLM(RESPONSE_PREFIX, tokenizer=tokenizer)
+            rubrics=rubrics,
+            enable_field_mask=enable_field_mask,
+        ),
+        remove_columns=raw.column_names,
+    )
+    collator = DataCollatorForLanguageModeling(
+        pad_token_id=tokenizer.pad_token_id,
+        max_length=config["model"]["max_seq_length"],
+        truncation_mode="keep_end",
+        completion_only_loss=train_cfg.get("completion_only", True),
+    )
 
     args = SFTConfig(
         output_dir=train_cfg["output_dir"],
@@ -58,23 +56,54 @@ def run_sft(config: dict[str, Any], dataset_name_or_path: str, rubrics: dict[str
         gradient_accumulation_steps=train_cfg["gradient_accumulation_steps"],
         learning_rate=train_cfg["learning_rate"],
         warmup_ratio=train_cfg["warmup_ratio"],
-        max_seq_length=config["model"]["max_seq_length"],
+        max_length=config["model"]["max_seq_length"],
         bf16=train_cfg.get("bf16", True),
         gradient_checkpointing=train_cfg.get("gradient_checkpointing", True),
+        dataset_kwargs={"skip_prepare_dataset": True},
         logging_steps=10,
     )
     trainer = SFTTrainer(
         model=model_name,
         args=args,
-        train_dataset=raw,
-        formatting_func=formatting_fn,
+        train_dataset=tokenized,
         data_collator=collator,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         peft_config=peft_config,
-        packing=False,
     )
     trainer.train()
     trainer.save_model(train_cfg["output_dir"])
+
+
+def tokenize_training_case(
+    case: dict[str, Any],
+    *,
+    tokenizer: Any,
+    rubrics: dict[str, str],
+    enable_field_mask: bool = True,
+) -> dict[str, list[int]]:
+    prompt_text = INFER_TEMPLATE.format(user=render_user_prompt(case, rubrics))
+    completion_text = render_assistant_label(case["label"]) + "<|im_end|>"
+    prompt_ids = tokenizer.encode(prompt_text, add_special_tokens=False)
+    completion = tokenizer(
+        completion_text,
+        add_special_tokens=False,
+        return_offsets_mapping=True,
+    )
+    completion_ids = completion["input_ids"]
+    completion_mask = [1] * len(completion_ids)
+
+    if enable_field_mask and case.get("task_type") == "public_binary":
+        offsets = completion.get("offset_mapping") or []
+        for match in _FIELD_PATTERN.finditer(completion_text):
+            char_start, char_end = match.start(), match.end()
+            for idx, (tok_start, tok_end) in enumerate(offsets):
+                if tok_start < char_end and tok_end > char_start:
+                    completion_mask[idx] = 0
+
+    return {
+        "input_ids": prompt_ids + completion_ids,
+        "completion_mask": [0] * len(prompt_ids) + completion_mask,
+    }
 
 
 class FieldLevelMaskCollator:
@@ -191,9 +220,9 @@ def _normalize_public_binary_labels(case: dict[str, Any]) -> dict[str, Any]:
     low_risk/ignore for safe) so that even if the field-level mask fails, these
     samples cannot teach the model to predict ban_account or limit_account.
 
-    The primary defense is the FieldLevelMaskCollator which zeroes out gradients
-    for risk_level and handling_suggestion tokens on public samples. This
-    normalization is the secondary fallback.
+    The primary defense is tokenize_training_case, which writes a completion_mask
+    that excludes risk_level and handling_suggestion tokens for public samples.
+    This normalization is the secondary fallback.
     """
     if case.get("task_type") != "public_binary" or not isinstance(case.get("label"), dict):
         return case

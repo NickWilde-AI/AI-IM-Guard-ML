@@ -225,7 +225,23 @@ PYTHONPATH=src python3 -m im_guard_ml.cli readiness-check --project-root . --out
 make train-readiness
 ```
 
-`train-readiness` 会生成 `outputs/training_readiness.json`，检查训练集、公开数据强处置污染、训练依赖和硬件条件。当前默认 27B 配置需要 GPU 训练环境；无 GPU 本机可以完成数据审计和训练前置验收，但不适合直接完整 SFT。
+`train-readiness` 会生成 `outputs/training_readiness.json`，检查训练集、公开数据强处置污染、训练依赖和硬件条件。当前默认 7B 配置需要 GPU 训练环境；无 GPU 本机可以完成数据审计、训练前置验收和小模型完整链路训练，但不适合直接完成高质量 SFT。
+
+本机 MPS Qwen LoRA：
+
+```bash
+LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 \
+PYTHONPATH=src im-guard --config configs/local_mps_train.yaml train data/train/xguard_splits/train.jsonl
+```
+
+本机快速完整链路训练：
+
+```bash
+LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 \
+PYTHONPATH=src im-guard --config configs/local_fast_full_train.yaml train data/train/xguard_splits/train.jsonl
+```
+
+快速配置会生成 checkpoint，但只用于验证训练工程链路，不用于证明模型精度。
 
 ## GitHub CI
 
