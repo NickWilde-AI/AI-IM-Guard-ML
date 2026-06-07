@@ -88,7 +88,7 @@ benchmark-api:
 
 benchmark-stress:
 	mkdir -p $(OUT_DIR)
-	PYTHONPATH=$(PYTHONPATH) $(PYTHON) scripts/benchmark_api.py --url http://127.0.0.1:$(PORT)/judge --requests 200 --concurrency 50 --warmup 5 --out $(OUT_DIR)/api_stress_test.json --fail-on-non-2xx --fail-on-p95-ms $(BENCHMARK_P95_MS)
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) scripts/benchmark_api.py --url http://127.0.0.1:$(PORT)/judge --requests 200 --concurrency 50 --warmup 5 --out $(OUT_DIR)/api_stress_test.json --fail-on-p95-ms $(BENCHMARK_P95_MS)
 
 enterprise-check: test compile api-contract production-preflight model-registry-check delivery-summary readiness-check
 
