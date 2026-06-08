@@ -70,7 +70,7 @@ def create_app(config_path: str = "configs/default.yaml", model_path: str | None
     audit_store = create_audit_store(audit_backend, audit_log_path)
     cors_origins = _parse_cors_origins(os.environ.get("IM_GUARD_CORS_ORIGINS", "*"))
     max_request_bytes = _parse_int_env("IM_GUARD_MAX_REQUEST_BYTES", 262_144)
-    rate_limit_per_minute = _parse_int_env("IM_GUARD_RATE_LIMIT_PER_MINUTE", 120)
+    rate_limit_per_minute = _parse_int_env("IM_GUARD_RATE_LIMIT_PER_MINUTE", 600)
 
     app.add_middleware(
         CORSMiddleware,
@@ -116,7 +116,9 @@ def create_app(config_path: str = "configs/default.yaml", model_path: str | None
         content_length = request.headers.get("Content-Length")
         if content_length and int(content_length) > max_request_bytes:
             return _error_response(413, "request_too_large", "request body exceeds IM_GUARD_MAX_REQUEST_BYTES", request_id)
-        if rate_limit_per_minute > 0:
+        # 只读/监控路径不计入限流
+        _no_ratelimit = ("/health", "/ready", "/dashboard/data", "/metrics", "/static")
+        if rate_limit_per_minute > 0 and not any(request.url.path.startswith(p) for p in _no_ratelimit):
             client = request.client.host if request.client else "unknown"
             now = time.time()
             bucket = request_times.setdefault(client, deque())
