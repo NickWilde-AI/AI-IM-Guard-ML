@@ -132,6 +132,7 @@ class HeuristicJudge:
                 "final_judgment": "not_exist_violation",
                 "judgment_basis": "未发现明确违规话术或可印证的异常行为。",
                 "handling_suggestion": "ignore",
+                "confidence": 0.85,
             }
         return {
             "risk_level": "high_risk" if high else "mid_risk",
@@ -140,6 +141,7 @@ class HeuristicJudge:
             "final_judgment": "exist_violation",
             "judgment_basis": "命中违规语义要点，并存在行为侧或上下文证据支撑。",
             "handling_suggestion": "ban_account" if high else "limit_account" if mid else "warning",
+            "confidence": 0.95 if high else 0.88,
         }
 
 
