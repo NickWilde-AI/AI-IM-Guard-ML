@@ -544,17 +544,42 @@ def run_simulator(host: str = "127.0.0.1", port: int = 8000, interval: float = 1
     asyncio.run(_async_run(host, port, interval, concurrency))
 
 
+def _extract_behavior_features(case: dict) -> dict:
+    """从模拟案例中提取行为特征供 RiskHub 规则引擎使用。"""
+    summary = case.get("audit_scene", {}).get("behavior_key_summary", {})
+    profile = case.get("audit_scene", {}).get("user_profile", {})
+    abnormals = case.get("behavior_abnormal_list", [])
+
+    features = {}
+    # 消息频率
+    gift_count = summary.get("gift_total_count", 0)
+    if gift_count:
+        features["recent_message_count"] = random.randint(50, 200)
+
+    # 外联数（如果有批量投放异常，设较高值）
+    if any("批量" in a.get("abnormal_description", "") or "投放" in a.get("abnormal_description", "") for a in abnormals):
+        features["external_contact_count"] = random.randint(10, 30)
+    elif profile.get("history_violations", 0) > 0:
+        features["external_contact_count"] = random.randint(5, 15)
+
+    return features
+
+
 async def _async_run(host: str, port: int, interval: float, concurrency: int):
     import httpx as _httpx
 
     url = f"http://{host}:{port}/judge"
+    # 同时向 RiskHub 发送请求，让两个看板都有数据
+    riskhub_url = "http://127.0.0.1:8080/api/v1/audit/submit"
+    riskhub_token = "Bearer tk_im_service_2024"
     event_sim = EventSimulator()
     counter = {"n": 0}
 
     print(f"╔══════════════════════════════════════════╗")
     print(f"║   IM Guard 数据模拟器 v3.0 (async)       ║")
     print(f"╠══════════════════════════════════════════╣")
-    print(f"║  目标: {url:<32} ║")
+    print(f"║  Guard-ML: {url:<29} ║")
+    print(f"║  RiskHub:  {riskhub_url:<29} ║")
     print(f"║  并发数: {concurrency}  基础间隔: {interval:.1f}s              ║")
     print(f"╚══════════════════════════════════════════╝")
     print("按 Ctrl+C 停止\n" + "-" * 60)
@@ -565,9 +590,32 @@ async def _async_run(host: str, port: int, interval: float, concurrency: int):
         async with sem:
             try:
                 async with _httpx.AsyncClient(timeout=30.0) as client:
+                    # 发送到 Guard-ML (看板数据)
                     resp = await client.post(url, json=case)
                     resp.raise_for_status()
                     result = resp.json()
+
+                    # 同时发送到 RiskHub (走完整审核链路)
+                    riskhub_payload = {
+                        "requestId": case.get("ticket_id", f"sim-{counter['n']}"),
+                        "bizType": "im",
+                        "scene": "private_chat",
+                        "userId": case.get("audit_scene", {}).get("user_profile", {}).get("user_id", "unknown"),
+                        "contentText": case.get("chat_evidence_list", [{}])[0].get("original_content", "") if case.get("chat_evidence_list") else "",
+                        "chatEvidenceList": [e.get("original_content", "") for e in case.get("chat_evidence_list", [])],
+                        "behaviorFeatures": _extract_behavior_features(case),
+                        "mode": "sync",
+                    }
+                    try:
+                        await client.post(
+                            riskhub_url,
+                            json=riskhub_payload,
+                            headers={"Authorization": riskhub_token, "Content-Type": "application/json"},
+                            timeout=5.0,
+                        )
+                    except Exception:
+                        pass  # RiskHub 不可用时静默忽略，不影响 Guard-ML 模拟
+
                 counter["n"] += 1
                 risk = result.get("risk_level", "?")
                 topic = result.get("topic", "?")
